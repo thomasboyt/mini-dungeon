@@ -119,13 +119,19 @@ class Game extends Component<null> {
   }
 }
 
-createPearl({
-  rootComponents: [new Game()],
-  width: 32,
-  height: 32,
-  backgroundColor: 'black',
-  canvas: document.getElementById('canvas') as HTMLCanvasElement,
-  assets: {
-    sheet: new SpriteSheetAsset(require('../assets/sheet.png'), 4, 4),
-  },
-});
+async function main() {
+  const pearl = await createPearl({
+    rootComponents: [new Game()],
+    width: 32,
+    height: 32,
+    backgroundColor: 'black',
+    canvas: document.getElementById('canvas') as HTMLCanvasElement,
+    assets: {
+      sheet: new SpriteSheetAsset(require('../assets/sheet.png'), 4, 4),
+    },
+  });
+
+  pearl.renderer.scale(16); // 512 x 512
+}
+
+main();
