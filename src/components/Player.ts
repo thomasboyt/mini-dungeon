@@ -9,10 +9,16 @@ import {
 } from 'pearl';
 import TiledTileMap from './TiledTileMap';
 
+const lerp = (a: number, b: number, f: number) => a + (b - a) * f;
+
 export default class Player extends Component<null> {
   playerSpeed = 0.01;
 
   hasKey: boolean = false;
+
+  init() {
+    this.pearl.renderer.setViewCenter(this.getComponent(Physical).center);
+  }
 
   update(dt: number) {
     let xVec = 0;
@@ -37,6 +43,8 @@ export default class Player extends Component<null> {
       y: yVec * dt * this.playerSpeed,
     });
 
+    this.moveCamera(dt);
+
     this.checkCollisions();
   }
 
@@ -59,8 +67,6 @@ export default class Player extends Component<null> {
   private moveAndCollide(vec: Coordinates) {
     this.moveAndCollideAxis('x', vec.x);
     this.moveAndCollideAxis('y', vec.y);
-
-    this.pearl.renderer.setViewCenter(this.getComponent(Physical).center);
   }
 
   private moveAndCollideAxis(axis: 'x' | 'y', vec: number) {
@@ -79,6 +85,32 @@ export default class Player extends Component<null> {
     if (tileMapCollision) {
       phys.center = prevCenter;
     }
+  }
+
+  private moveCamera(dt: number) {
+    // distance from center of the screen the player has to be at for the camera
+    // to move
+    const offset = 2;
+
+    const interp = 6 * (dt / 1000);
+    const viewBounds = this.pearl.renderer.getViewSize();
+    const viewCenter = this.pearl.renderer.getViewCenter();
+    const center = this.getComponent(Physical).center;
+
+    const newViewCenter = { x: viewCenter.x, y: viewCenter.y };
+
+    if (center.x - viewCenter.x > offset) {
+      newViewCenter.x = lerp(viewCenter.x, center.x - offset, interp);
+    } else if (viewCenter.x - center.x > offset) {
+      newViewCenter.x = lerp(viewCenter.x, center.x + offset, interp);
+    }
+    if (center.y - viewCenter.y > offset) {
+      newViewCenter.y = lerp(viewCenter.y, center.y - offset, interp);
+    } else if (viewCenter.y - center.y > offset) {
+      newViewCenter.y = lerp(viewCenter.y, center.y + offset, interp);
+    }
+
+    this.pearl.renderer.setViewCenter(newViewCenter);
   }
 
   private checkCollisions() {
