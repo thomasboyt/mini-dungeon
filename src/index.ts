@@ -54,8 +54,8 @@ class Game extends Component<null> {
             }),
             // slightly smaller
             PolygonCollider.createBox({
-              width: 3.9,
-              height: 3.9,
+              width: 3.8,
+              height: 3.8,
             }),
             new Player(),
           ],
