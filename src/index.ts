@@ -13,6 +13,7 @@ import SpriteSheetAsset from './SpriteSheetAsset';
 import { TiledLevelJSON, TiledTilesetJSON, ObjectInfo } from './tiled';
 import TiledTileMap from './components/TiledTileMap';
 import Player from './components/Player';
+import Sign from './components/Sign';
 
 const level: TiledLevelJSON = require('../assets/level.json');
 const tileset: TiledTilesetJSON = require('../assets/micro-dungeon.json');
@@ -98,6 +99,26 @@ class Game extends Component<null> {
         obj.getComponent(SpriteRenderer).scaleX = objectInfo.scaleX;
         obj.getComponent(SpriteRenderer).scaleY = objectInfo.scaleY;
         return obj;
+      } else if (type === 'sign') {
+        return new GameObject({
+          name: 'sign',
+          tags: ['sign'],
+          components: [
+            new Physical({
+              center: { x, y },
+            }),
+            PolygonCollider.createBox({
+              width: 4,
+              height: 4,
+            }),
+            new SpriteRenderer({
+              sprite: sheet.createSprite(30),
+            }),
+            new Sign({
+              text: objectInfo.properties['text'],
+            }),
+          ],
+        });
       } else {
         throw new Error(`unrecognized object type ${type}`);
       }

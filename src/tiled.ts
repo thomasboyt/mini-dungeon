@@ -4,6 +4,7 @@ export interface TiledObject {
   y: number;
   width: number;
   height: number;
+  properties: { [key: string]: any };
 }
 
 export interface TiledTileLayer {
@@ -44,6 +45,7 @@ export interface ObjectInfo {
   topLeftY: number;
   scaleX: number;
   scaleY: number;
+  properties: { [key: string]: any };
 }
 
 export const loadObject = (object: TiledObject): ObjectInfo => {
@@ -87,5 +89,6 @@ export const loadObject = (object: TiledObject): ObjectInfo => {
     scaleY,
     topLeftX,
     topLeftY,
+    properties: object.properties || {},
   };
 };

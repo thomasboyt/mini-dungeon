@@ -8,6 +8,7 @@ import {
   GameObject,
 } from 'pearl';
 import TiledTileMap from './TiledTileMap';
+import Sign from './Sign';
 
 const lerp = (a: number, b: number, f: number) => a + (b - a) * f;
 
@@ -118,6 +119,7 @@ export default class Player extends Component<null> {
 
     const keys = this.pearl.entities.all('key');
     const doors = this.pearl.entities.all('door');
+    const signs = this.pearl.entities.all('sign');
 
     for (let key of keys) {
       if (collider.isColliding(key.getComponent(PolygonCollider))) {
@@ -150,6 +152,21 @@ export default class Player extends Component<null> {
             y: -collision.overlapVector[1],
           });
         }
+      }
+    }
+    for (let sign of signs) {
+      if (collider.isColliding(sign.getComponent(PolygonCollider))) {
+        // ... see above
+        const collision = collider.getCollision(
+          sign.getComponent(PolygonCollider)
+        )!;
+
+        this.getComponent(Physical).translate({
+          x: -collision.overlapVector[0],
+          y: -collision.overlapVector[1],
+        });
+
+        sign.getComponent(Sign).showText();
       }
     }
   }
