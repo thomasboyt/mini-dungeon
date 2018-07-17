@@ -99,6 +99,7 @@ class Game extends Component<null> {
     this.pearl.entities.add(
       new GameObject({
         name: 'level',
+        zIndex: -1,
         components: [
           new TiledTileMap({
             level,
