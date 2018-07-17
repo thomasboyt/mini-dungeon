@@ -43,6 +43,8 @@ export interface ObjectInfo {
   gid: number;
   topLeftX: number;
   topLeftY: number;
+  width: number;
+  height: number;
   scaleX: number;
   scaleY: number;
   properties: { [key: string]: any };
@@ -90,5 +92,7 @@ export const loadObject = (object: TiledObject): ObjectInfo => {
     topLeftX,
     topLeftY,
     properties: object.properties || {},
+    width: object.width,
+    height: object.height,
   };
 };

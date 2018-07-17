@@ -6,6 +6,7 @@ import {
   PolygonCollider,
   Coordinates,
   GameObject,
+  SpriteRenderer,
 } from 'pearl';
 import TiledTileMap from './TiledTileMap';
 import Sign from './Sign';
@@ -51,14 +52,15 @@ export default class Player extends Component<null> {
 
   private setAnimation(xVec: number, yVec: number) {
     const anim = this.getComponent(AnimationManager);
+    const spriteRenderer = this.getComponent(SpriteRenderer);
 
     if (xVec !== 0 || yVec !== 0) {
       anim.set('walking');
 
       if (xVec < 0) {
-        anim.scaleX = -1;
+        spriteRenderer.scaleX = -1;
       } else if (xVec > 0) {
-        anim.scaleX = 1;
+        spriteRenderer.scaleX = 1;
       }
     } else {
       anim.set('idle');

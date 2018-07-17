@@ -6,6 +6,8 @@ import {
   PolygonCollider,
   Coordinates,
   CollisionResponse,
+  SpriteRenderer,
+  Physical,
 } from 'pearl';
 
 import * as SAT from 'sat';
@@ -70,6 +72,24 @@ export default class TiledTileMap extends Component<Settings> {
           const objectInfo = loadObject(object);
           const type = tileset.tiles[objectInfo.gid].type;
           const entity = entityFactory(type, objectInfo);
+
+          entity.addComponent(
+            new SpriteRenderer({
+              sprite: this.tileSprites[objectInfo.gid + 1],
+              scaleX: objectInfo.scaleX,
+              scaleY: objectInfo.scaleY,
+            })
+          );
+
+          entity.addComponent(
+            new Physical({
+              center: {
+                x: objectInfo.topLeftX + objectInfo.width / 2,
+                y: objectInfo.topLeftY + objectInfo.height / 2,
+              },
+            })
+          );
+
           this.pearl.entities.add(entity);
           this.gameObject.appendChild(entity);
         }

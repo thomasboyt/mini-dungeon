@@ -47,12 +47,6 @@ class Game extends Component<null> {
                 },
               },
             }),
-            new Physical({
-              center: {
-                x,
-                y,
-              },
-            }),
             // slightly smaller
             PolygonCollider.createBox({
               width: 3.8,
@@ -66,53 +60,31 @@ class Game extends Component<null> {
           name: 'key',
           tags: ['key'],
           components: [
-            new Physical({
-              center: { x, y },
-            }),
             PolygonCollider.createBox({
               width: 4,
               height: 4,
-            }),
-            new SpriteRenderer({
-              sprite: sheet.createSprite(29),
             }),
           ],
         });
       } else if (type === 'door') {
-        const obj = new GameObject({
+        return new GameObject({
           name: 'door',
           tags: ['door'],
           components: [
-            new Physical({
-              center: { x, y },
-            }),
             PolygonCollider.createBox({
               width: 4,
               height: 4,
             }),
-            new SpriteRenderer({
-              sprite: sheet.createSprite(28),
-            }),
           ],
         });
-
-        obj.getComponent(SpriteRenderer).scaleX = objectInfo.scaleX;
-        obj.getComponent(SpriteRenderer).scaleY = objectInfo.scaleY;
-        return obj;
       } else if (type === 'sign') {
         return new GameObject({
           name: 'sign',
           tags: ['sign'],
           components: [
-            new Physical({
-              center: { x, y },
-            }),
             PolygonCollider.createBox({
               width: 4,
               height: 4,
-            }),
-            new SpriteRenderer({
-              sprite: sheet.createSprite(30),
             }),
             new Sign({
               text: objectInfo.properties['text'],
