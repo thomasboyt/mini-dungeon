@@ -53,6 +53,10 @@
         {
          "type":"sign"
         },
+     "31":
+        {
+         "type":"switch"
+        },
      "40":
         {
          "type":"player"

@@ -182,7 +182,9 @@ export default class TiledTileMap extends Component<Settings> {
           resp.overlapV.y,
         ];
         const overlap = resp.overlap;
-        return { overlapVector, overlap };
+        const aInB = resp.aInB;
+        const bInA = resp.bInA;
+        return { overlapVector, overlap, aInB, bInA };
       }
     }
   }

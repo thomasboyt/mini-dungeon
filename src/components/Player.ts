@@ -10,19 +10,29 @@ import {
 } from 'pearl';
 import TiledTileMap from './TiledTileMap';
 import Sign from './Sign';
+import SpriteAsset from '../SpriteAsset';
+import Sword from './Sword';
+import { Polygon } from 'sat';
+import FallingRenderer from './FallingRenderer';
 
 const lerp = (a: number, b: number, f: number) => a + (b - a) * f;
 
 export default class Player extends Component<null> {
   playerSpeed = 0.01;
-
   hasKey: boolean = false;
+  sword?: GameObject;
+  facing: Coordinates = { x: 1, y: 0 };
+  dead = false;
 
   init() {
     this.pearl.renderer.setViewCenter(this.getComponent(Physical).center);
   }
 
   update(dt: number) {
+    if (this.dead) {
+      return;
+    }
+
     let xVec = 0;
     let yVec = 0;
 
@@ -38,6 +48,53 @@ export default class Player extends Component<null> {
       yVec = -1;
     }
 
+    if (xVec || yVec) {
+      this.facing = { x: xVec, y: yVec };
+    }
+
+    if (this.pearl.inputter.isKeyPressed(Keys.space)) {
+      this.stab();
+    }
+
+    this.updateMove(dt, xVec, yVec);
+  }
+
+  private stab() {
+    if (this.sword) {
+      return;
+    }
+
+    this.sword = this.pearl.entities.add(
+      new GameObject({
+        name: 'sword',
+        tags: ['sword'],
+        components: [
+          new Physical({
+            angle: (45 + 90) * (Math.PI / 180),
+          }),
+          new PolygonCollider(),
+          new SpriteRenderer({
+            sprite: this.pearl.assets.get(SpriteAsset, 'sword'),
+            scaleX: 1 / 4,
+            scaleY: 1 / 4,
+          }),
+          new Sword({
+            direction: this.facing,
+          }),
+        ],
+      })
+    );
+
+    this.gameObject.appendChild(this.sword);
+
+    this.runCoroutine(function*(this: Player) {
+      yield this.pearl.async.waitMs(300);
+      this.pearl.entities.destroy(this.sword!);
+      delete this.sword;
+    });
+  }
+
+  private updateMove(dt: number, xVec: number, yVec: number) {
     this.setAnimation(xVec, yVec);
 
     this.moveAndCollide({
@@ -119,18 +176,14 @@ export default class Player extends Component<null> {
   private checkCollisions() {
     const collider = this.getComponent(PolygonCollider);
 
-    const keys = this.pearl.entities.all('key');
-    const doors = this.pearl.entities.all('door');
-    const signs = this.pearl.entities.all('sign');
-
-    for (let key of keys) {
+    for (let key of this.pearl.entities.all('key')) {
       if (collider.isColliding(key.getComponent(PolygonCollider))) {
         this.pearl.entities.destroy(key);
         this.hasKey = true;
       }
     }
 
-    for (let door of doors) {
+    for (let door of this.pearl.entities.all('door')) {
       if (collider.isColliding(door.getComponent(PolygonCollider))) {
         if (this.hasKey) {
           this.pearl.entities.destroy(door);
@@ -156,7 +209,8 @@ export default class Player extends Component<null> {
         }
       }
     }
-    for (let sign of signs) {
+
+    for (let sign of this.pearl.entities.all('sign')) {
       if (collider.isColliding(sign.getComponent(PolygonCollider))) {
         // ... see above
         const collision = collider.getCollision(
@@ -169,6 +223,20 @@ export default class Player extends Component<null> {
         });
 
         sign.getComponent(Sign).showText();
+      }
+    }
+
+    for (let dropZone of this.pearl.entities.all('dropZone')) {
+      const collision = collider.getCollision(
+        dropZone.getComponent(PolygonCollider)
+      );
+
+      if (collision) {
+        if (collision.aInB) {
+          this.dead = true;
+          this.getComponent(AnimationManager).set('idle');
+          this.getComponent(FallingRenderer).start();
+        }
       }
     }
   }
