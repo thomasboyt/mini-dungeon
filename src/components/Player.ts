@@ -14,6 +14,7 @@ import SpriteAsset from '../SpriteAsset';
 import Sword from './Sword';
 import FallingRenderer from './FallingRenderer';
 import KinematicBody, { CollisionInformation } from './KinematicBody';
+import { MouseButton } from '../../node_modules/pearl/dist/Inputter/ButtonListener';
 
 const lerp = (a: number, b: number, f: number) => a + (b - a) * f;
 
@@ -33,30 +34,67 @@ export default class Player extends Component<null> {
       return;
     }
 
-    let xVec = 0;
-    let yVec = 0;
+    let uVelocity = { x: 0, y: 0 };
 
     if (this.pearl.inputter.isKeyDown(Keys.rightArrow)) {
-      xVec = 1;
+      uVelocity.x = 1;
     } else if (this.pearl.inputter.isKeyDown(Keys.leftArrow)) {
-      xVec = -1;
+      uVelocity.x = -1;
     }
 
     if (this.pearl.inputter.isKeyDown(Keys.downArrow)) {
-      yVec = 1;
+      uVelocity.y = 1;
     } else if (this.pearl.inputter.isKeyDown(Keys.upArrow)) {
-      yVec = -1;
+      uVelocity.y = -1;
     }
 
-    if (xVec || yVec) {
-      this.facing = { x: xVec, y: yVec };
+    // some experimental mouse & touch controls
+    if (this.pearl.inputter.isMouseDown(MouseButton.left)) {
+      const viewPos = this.pearl.inputter.getMousePosition();
+      uVelocity = this.getPointerMovement(viewPos);
+    }
+
+    const touchPositions = this.pearl.inputter.getTouchPositions();
+    if (touchPositions.size > 0) {
+      uVelocity = this.getPointerMovement([...touchPositions.values()][0]);
+    }
+
+    if (uVelocity.x || uVelocity.y) {
+      this.facing = { x: uVelocity.x, y: uVelocity.y };
     }
 
     if (this.pearl.inputter.isKeyPressed(Keys.space)) {
       this.stab();
     }
 
-    this.updateMove(dt, xVec, yVec);
+    this.updateMove(dt, uVelocity.x, uVelocity.y);
+  }
+
+  private getPointerMovement(viewPos: Coordinates): Coordinates {
+    const scaledViewPos = {
+      x: viewPos.x / this.pearl.renderer.logicalScaleFactor,
+      y: viewPos.y / this.pearl.renderer.logicalScaleFactor,
+    };
+
+    // translate mouse position relative to view center
+    const viewCenter = this.pearl.renderer.getViewCenter();
+    const viewSize = this.pearl.renderer.getViewSize();
+    const worldPos = {
+      x: viewCenter.x + (scaledViewPos.x - viewSize.x / 2),
+      y: viewCenter.y + (scaledViewPos.y - viewSize.y / 2),
+    };
+
+    // get vector relative to player
+    const phys = this.getComponent(Physical);
+    const vector = {
+      x: worldPos.x - phys.center.x,
+      y: worldPos.y - phys.center.y,
+    };
+
+    // vec -> unit vec
+    const magnitude = Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
+
+    return { x: vector.x / magnitude, y: vector.y / magnitude };
   }
 
   private stab() {
