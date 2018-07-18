@@ -160,7 +160,7 @@
                  "rotation":0,
                  "type":"arrowSpawner",
                  "visible":true,
-                 "width":1,
+                 "width":2,
                  "x":24,
                  "y":61
                 }],

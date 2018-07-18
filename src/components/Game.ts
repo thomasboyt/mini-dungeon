@@ -16,7 +16,7 @@ import Sign from './Sign';
 import FallingRenderer from './FallingRenderer';
 import PitSwitch from './PitSwitch';
 import Enemy from './Enemy';
-import Character from './Character';
+import KinematicBody from './KinematicBody';
 import Pit from './Pit';
 import ArrowSpawner from './ArrowSpawner';
 import TileMapCollider from './TileMapCollider';
@@ -60,7 +60,7 @@ export default class Game extends Component<null> {
               height: 3.8,
             }),
             new Player(),
-            new Character(),
+            new KinematicBody(),
             new FallingRenderer(),
           ],
         });
@@ -142,7 +142,7 @@ export default class Game extends Component<null> {
               height: 3.8,
             }),
             new Enemy(),
-            new Character(),
+            new KinematicBody(),
             new FallingRenderer(),
           ],
         });

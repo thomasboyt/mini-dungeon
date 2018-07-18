@@ -16,26 +16,12 @@ export interface CollisionInformation {
   isTrigger: boolean;
 }
 
-export default class Character extends Component<null> {
+export default class KinematicBody extends Component<null> {
   moveAndCollide(vec: Coordinates): CollisionInformation[] {
-    const xCollisions = this.moveAndCollideAxis('x', vec.x);
-    const yCollisions = this.moveAndCollideAxis('y', vec.y);
-    // remove duplicates
-    const collisions = new Set([...xCollisions, ...yCollisions]);
-    return [...collisions];
-  }
-
-  private moveAndCollideAxis(
-    axis: 'x' | 'y',
-    vec: number
-  ): CollisionInformation[] {
     const phys = this.getComponent(Physical);
-    const tileMap = this.gameObject.parent!.getComponent(TiledTileMap);
 
     const prevCenter = { ...phys.center };
-
-    const translateVec = axis === 'x' ? { x: vec, y: 0 } : { x: 0, y: vec };
-    phys.translate(translateVec);
+    phys.translate(vec);
 
     const collisions = this.getCollisions();
 
@@ -50,10 +36,27 @@ export default class Character extends Component<null> {
     return collisions;
   }
 
+  // TODO: This doesn't quite "slide" the way it probably should yet. A true
+  // slide would be that, if e.g. you were going northeast and were blocked by a
+  // wall on the west, you would then slide north with the _full magnitude of
+  // your velocity_, rather than _just the x component_ as happens here.
+  //
+  // Godot does this by saying "if there's a collision, use
+  // `velocity.slide(collision.normal)`", but I'm not sure how this works when
+  // it's possible to have multiple collisions at once.
+  //
+  // Notably, fixing this would solve some bugs around moving around corners, I
+  // think? Especially for AI.
+  moveAndSlide(vec: Coordinates): CollisionInformation[] {
+    const xCollisions = this.moveAndCollide({ x: vec.x, y: 0 });
+    const yCollisions = this.moveAndCollide({ x: 0, y: vec.y });
+    // remove duplicates
+    const collisions = new Set([...xCollisions, ...yCollisions]);
+    return [...collisions];
+  }
+
   private getCollisions() {
     const thisCollider = this.getComponent(PolygonCollider);
-
-    const tileMap = this.gameObject.parent!.getComponent(TiledTileMap);
 
     const colliders = this.pearl.entities
       .all()

@@ -13,7 +13,7 @@ import Sign from './Sign';
 import SpriteAsset from '../SpriteAsset';
 import Sword from './Sword';
 import FallingRenderer from './FallingRenderer';
-import Character, { CollisionInformation } from './Character';
+import KinematicBody, { CollisionInformation } from './KinematicBody';
 
 const lerp = (a: number, b: number, f: number) => a + (b - a) * f;
 
@@ -97,7 +97,7 @@ export default class Player extends Component<null> {
   private updateMove(dt: number, xVec: number, yVec: number) {
     this.setAnimation(xVec, yVec);
 
-    const collisions = this.getComponent(Character).moveAndCollide({
+    const collisions = this.getComponent(KinematicBody).moveAndSlide({
       x: xVec * dt * this.playerSpeed,
       y: yVec * dt * this.playerSpeed,
     });

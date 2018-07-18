@@ -5,6 +5,8 @@ import {
   GameObject,
   Physical,
 } from 'pearl';
+import KinematicBody from './KinematicBody';
+import Arrow from './Arrow';
 
 export default class ArrowSpawner extends Component<void> {
   init() {
@@ -18,7 +20,7 @@ export default class ArrowSpawner extends Component<void> {
 
   createArrow() {
     const phys = this.getComponent(Physical);
-    this.pearl.entities.add(
+    const arrow = this.pearl.entities.add(
       new GameObject({
         name: 'arrow',
         tags: ['arrow'],
@@ -28,10 +30,6 @@ export default class ArrowSpawner extends Component<void> {
               x: phys.center.x,
               y: phys.center.y,
             },
-            vel: {
-              x: 0.01,
-              y: 0,
-            },
           }),
           PolygonCollider.createBox({
             width: 2,
@@ -40,12 +38,12 @@ export default class ArrowSpawner extends Component<void> {
           new PolygonRenderer({
             fillStyle: 'red',
           }),
+          new Arrow(),
+          new KinematicBody(),
         ],
       })
     );
+
+    arrow.getComponent(PolygonCollider).isTrigger = true;
   }
-
-  activate() {}
-
-  deactivate() {}
 }

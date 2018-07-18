@@ -9,7 +9,7 @@ import * as SAT from 'sat';
 import FallingRenderer from './FallingRenderer';
 import TiledTileMap from './TiledTileMap';
 import Player from './Player';
-import Character from './Character';
+import KinematicBody from './KinematicBody';
 import TileMapCollider from './TileMapCollider';
 
 // hm https://docs.unity3d.com/ScriptReference/Vector3.MoveTowards.html
@@ -79,7 +79,7 @@ export default class Enemy extends Component<void> {
       this.getComponent(AnimationManager).set('idle');
     }
 
-    const collisions = this.getComponent(Character).moveAndCollide({
+    const collisions = this.getComponent(KinematicBody).moveAndSlide({
       x: xVec,
       y: yVec,
     });
