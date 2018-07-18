@@ -4,7 +4,7 @@ import {
   Coordinates,
   AnimationManager,
   PolygonCollider,
-} from 'pearl';
+} from '../../../pearl/dist';
 import * as SAT from 'sat';
 import FallingRenderer from './FallingRenderer';
 import TiledTileMap from './TiledTileMap';
@@ -82,11 +82,16 @@ export default class Enemy extends Component<void> {
     });
 
     for (let collision of collisions) {
-      if (collision.object.hasTag('dropZone')) {
+      if (collision.object.hasTag('pit')) {
         if (collision.response.bInA) {
           this.dead = true;
           this.getComponent(AnimationManager).set('idle');
           this.getComponent(FallingRenderer).start();
+
+          this.runCoroutine(function*(this: Enemy) {
+            yield this.pearl.async.waitMs(1000);
+            this.pearl.entities.destroy(this.gameObject);
+          });
         }
       }
     }

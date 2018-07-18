@@ -162,7 +162,7 @@ export default class Player extends Component<null> {
         }
       } else if (collision.object.hasTag('sign')) {
         collision.object.getComponent(Sign).showText();
-      } else if (collision.object.hasTag('dropZone')) {
+      } else if (collision.object.hasTag('pit')) {
         if (collision.response.bInA) {
           this.dead = true;
           this.getComponent(AnimationManager).set('idle');

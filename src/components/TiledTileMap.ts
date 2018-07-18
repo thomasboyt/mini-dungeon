@@ -68,18 +68,28 @@ export default class TiledTileMap extends Component<Settings> {
         this.tileLayers.push(layer);
       } else if (layer.type === 'objectgroup') {
         for (let object of layer.objects) {
-          // TODO: handle flipping here
           const objectInfo = loadObject(object);
-          const type = tileset.tiles[objectInfo.gid].type;
-          const entity = entityFactory(type, objectInfo);
 
-          entity.addComponent(
-            new SpriteRenderer({
-              sprite: this.tileSprites[objectInfo.gid + 1],
-              scaleX: objectInfo.scaleX,
-              scaleY: objectInfo.scaleY,
-            })
-          );
+          const resolvedType =
+            objectInfo.objectType === 'tile'
+              ? objectInfo.type || tileset.tiles[objectInfo.gid].type
+              : objectInfo.type;
+
+          if (!resolvedType) {
+            throw new Error(`can't parse object without a type: ${objectInfo}`);
+          }
+
+          const entity = entityFactory(resolvedType, objectInfo);
+
+          if (objectInfo.objectType === 'tile') {
+            entity.addComponent(
+              new SpriteRenderer({
+                sprite: this.tileSprites[objectInfo.gid + 1],
+                scaleX: objectInfo.scaleX,
+                scaleY: objectInfo.scaleY,
+              })
+            );
+          }
 
           entity.addComponent(
             new Physical({

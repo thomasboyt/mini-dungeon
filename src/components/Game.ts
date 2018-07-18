@@ -6,7 +6,7 @@ import {
   AnimationManager,
   PolygonCollider,
   PolygonRenderer,
-} from 'pearl';
+} from '../../../pearl/dist';
 import SpriteSheetAsset from '../SpriteSheetAsset';
 
 import { TiledLevelJSON, TiledTilesetJSON, ObjectInfo } from '../tiled';
@@ -14,9 +14,10 @@ import TiledTileMap from './TiledTileMap';
 import Player from './Player';
 import Sign from './Sign';
 import FallingRenderer from './FallingRenderer';
-import DropZoneSwitch from './DropZoneSwitch';
+import PitSwitch from './PitSwitch';
 import Enemy from './Enemy';
 import Character from './Character';
+import Pit from './Pit';
 
 const level: TiledLevelJSON = require('../../assets/level.json');
 const tileset: TiledTilesetJSON = require('../../assets/micro-dungeon.json');
@@ -106,15 +107,8 @@ export default class Game extends Component<null> {
               width: 4,
               height: 4,
             }),
-            new DropZoneSwitch({
-              dropZoneConfig: {
-                center: {
-                  x: 11 * 4,
-                  y: 7 * 4,
-                },
-                width: 8 * 4,
-                height: 6 * 4,
-              },
+            new PitSwitch({
+              pitName: objectInfo.properties.pitName,
             }),
           ],
         });
@@ -148,6 +142,26 @@ export default class Game extends Component<null> {
             new Enemy(),
             new Character(),
             new FallingRenderer(),
+          ],
+        });
+      } else if (type === 'pit') {
+        if (!objectInfo.name) {
+          console.log(objectInfo);
+          throw new Error('cannot create pit without name');
+        }
+
+        return new GameObject({
+          name: objectInfo.name,
+          tags: ['pit'],
+          components: [
+            PolygonCollider.createBox({
+              width: objectInfo.width,
+              height: objectInfo.height,
+            }),
+            new PolygonRenderer({
+              fillStyle: 'black',
+            }),
+            new Pit(),
           ],
         });
       } else {
