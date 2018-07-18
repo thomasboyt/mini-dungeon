@@ -149,7 +149,7 @@ export default class TiledTileMap extends Component<Settings> {
     return y * this.width + x;
   }
 
-  // TODO: Allow non-rectangular tiles and don't use AABB collision, duh
+  // TODO: Allow non-rectangular tiles
   getCollision(
     collider: PolygonCollider | SAT.Polygon
   ): CollisionResponse | null {

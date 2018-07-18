@@ -163,7 +163,7 @@ export default class Player extends Component<null> {
       } else if (collision.object.hasTag('sign')) {
         collision.object.getComponent(Sign).showText();
       } else if (collision.object.hasTag('dropZone')) {
-        if (collision.response.aInB) {
+        if (collision.response.bInA) {
           this.dead = true;
           this.getComponent(AnimationManager).set('idle');
           this.getComponent(FallingRenderer).start();

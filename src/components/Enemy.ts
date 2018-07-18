@@ -83,7 +83,6 @@ export default class Enemy extends Component<void> {
 
     for (let collision of collisions) {
       if (collision.object.hasTag('dropZone')) {
-        console.log(collision.response);
         if (collision.response.bInA) {
           this.dead = true;
           this.getComponent(AnimationManager).set('idle');

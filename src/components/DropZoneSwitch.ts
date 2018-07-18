@@ -69,13 +69,13 @@ export default class DropZoneSwitch extends Component<Settings> {
     this.removeDropZoneCoroutine = this.runCoroutine(function*(
       this: DropZoneSwitch
     ) {
+      this.dropZone!.getComponent(PolygonCollider).isTrigger = false;
+
       yield this.pearl.async.waitMs(1000);
       this.getComponent(SpriteRenderer).sprite = this.unpressedSprite;
 
-      if (this.dropZone) {
-        this.pearl.entities.destroy(this.dropZone);
-        delete this.dropZone;
-      }
+      this.pearl.entities.destroy(this.dropZone!);
+      delete this.dropZone;
     });
   }
 
