@@ -150,8 +150,11 @@ export default class TiledTileMap extends Component<Settings> {
   }
 
   // TODO: Allow non-rectangular tiles and don't use AABB collision, duh
-  getCollision(collider: PolygonCollider): CollisionResponse | undefined {
-    const aabb = collider.getBounds();
+  getCollision(
+    collider: PolygonCollider | SAT.Polygon
+  ): CollisionResponse | null {
+    const poly =
+      collider instanceof PolygonCollider ? collider.getSATPolygon() : collider;
 
     for (let idx = 0; idx < this.collisionMap.length; idx += 1) {
       const collisionInfo = this.collisionMap[idx];
@@ -170,11 +173,7 @@ export default class TiledTileMap extends Component<Settings> {
       ).toPolygon();
 
       const resp = new SAT.Response();
-      const collided = SAT.testPolygonPolygon(
-        collider.getSATPolygon(),
-        tilePoly,
-        resp
-      );
+      const collided = SAT.testPolygonPolygon(poly, tilePoly, resp);
 
       if (collided && resp.overlap > 0) {
         const overlapVector: [number, number] = [
@@ -187,6 +186,8 @@ export default class TiledTileMap extends Component<Settings> {
         return { overlapVector, overlap, aInB, bInA };
       }
     }
+
+    return null;
   }
 
   private renderTile(

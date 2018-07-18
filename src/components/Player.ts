@@ -7,13 +7,13 @@ import {
   Coordinates,
   GameObject,
   SpriteRenderer,
+  CollisionResponse,
 } from 'pearl';
-import TiledTileMap from './TiledTileMap';
 import Sign from './Sign';
 import SpriteAsset from '../SpriteAsset';
 import Sword from './Sword';
-import { Polygon } from 'sat';
 import FallingRenderer from './FallingRenderer';
+import Character, { CollisionInformation } from './Character';
 
 const lerp = (a: number, b: number, f: number) => a + (b - a) * f;
 
@@ -97,14 +97,14 @@ export default class Player extends Component<null> {
   private updateMove(dt: number, xVec: number, yVec: number) {
     this.setAnimation(xVec, yVec);
 
-    this.moveAndCollide({
+    const collisions = this.getComponent(Character).moveAndCollide({
       x: xVec * dt * this.playerSpeed,
       y: yVec * dt * this.playerSpeed,
     });
 
     this.moveCamera(dt);
 
-    this.checkCollisions();
+    this.handleCollisions(collisions);
   }
 
   private setAnimation(xVec: number, yVec: number) {
@@ -121,29 +121,6 @@ export default class Player extends Component<null> {
       }
     } else {
       anim.set('idle');
-    }
-  }
-
-  private moveAndCollide(vec: Coordinates) {
-    this.moveAndCollideAxis('x', vec.x);
-    this.moveAndCollideAxis('y', vec.y);
-  }
-
-  private moveAndCollideAxis(axis: 'x' | 'y', vec: number) {
-    const phys = this.getComponent(Physical);
-    const tileMap = this.gameObject.parent!.getComponent(TiledTileMap);
-
-    const prevCenter = { ...phys.center };
-
-    const translateVec = axis === 'x' ? { x: vec, y: 0 } : { x: 0, y: vec };
-    phys.translate(translateVec);
-
-    const tileMapCollision = tileMap.getCollision(
-      this.getComponent(PolygonCollider)
-    );
-
-    if (tileMapCollision) {
-      phys.center = prevCenter;
     }
   }
 
@@ -173,70 +150,28 @@ export default class Player extends Component<null> {
     this.pearl.renderer.setViewCenter(newViewCenter);
   }
 
-  private checkCollisions() {
-    const collider = this.getComponent(PolygonCollider);
-
-    for (let key of this.pearl.entities.all('key')) {
-      if (collider.isColliding(key.getComponent(PolygonCollider))) {
-        this.pearl.entities.destroy(key);
+  private handleCollisions(collisions: CollisionInformation[]) {
+    for (let collision of collisions) {
+      if (collision.object.hasTag('key')) {
+        this.pearl.entities.destroy(collision.object);
         this.hasKey = true;
-      }
-    }
-
-    for (let door of this.pearl.entities.all('door')) {
-      if (collider.isColliding(door.getComponent(PolygonCollider))) {
+      } else if (collision.object.hasTag('door')) {
         if (this.hasKey) {
-          this.pearl.entities.destroy(door);
+          this.pearl.entities.destroy(collision.object);
           this.hasKey = false;
-        } else {
-          // TODO: I think this should actually happen as part of
-          // moveAndCollide(), but I'm not sure how to structure that yet.
-          //
-          // In a lot of systems moveAndCollide() only covers moving into static
-          // objects, and then you need to check dynamic objects elsewhere, I
-          // think?
-          //
-          // This might be something to punt on until collisions are overhauled,
-          // tbh?
-          const collision = collider.getCollision(
-            door.getComponent(PolygonCollider)
-          )!;
-
-          this.getComponent(Physical).translate({
-            x: -collision.overlapVector[0],
-            y: -collision.overlapVector[1],
-          });
         }
-      }
-    }
-
-    for (let sign of this.pearl.entities.all('sign')) {
-      if (collider.isColliding(sign.getComponent(PolygonCollider))) {
-        // ... see above
-        const collision = collider.getCollision(
-          sign.getComponent(PolygonCollider)
-        )!;
-
-        this.getComponent(Physical).translate({
-          x: -collision.overlapVector[0],
-          y: -collision.overlapVector[1],
-        });
-
-        sign.getComponent(Sign).showText();
-      }
-    }
-
-    for (let dropZone of this.pearl.entities.all('dropZone')) {
-      const collision = collider.getCollision(
-        dropZone.getComponent(PolygonCollider)
-      );
-
-      if (collision) {
-        if (collision.aInB) {
+      } else if (collision.object.hasTag('sign')) {
+        collision.object.getComponent(Sign).showText();
+      } else if (collision.object.hasTag('dropZone')) {
+        if (collision.response.aInB) {
           this.dead = true;
           this.getComponent(AnimationManager).set('idle');
           this.getComponent(FallingRenderer).start();
         }
+      } else if (collision.object.hasTag('enemy')) {
+        this.dead = true;
+        this.getComponent(AnimationManager).set('idle');
+        this.getComponent(Physical).angle = -90 * (Math.PI / 180);
       }
     }
   }

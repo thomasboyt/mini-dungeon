@@ -7,7 +7,7 @@ async function main() {
   const pearl = await createPearl({
     rootComponents: [new Game()],
     width: 64,
-    height: 64,
+    height: 48,
     backgroundColor: 'black',
     canvas: document.getElementById('canvas') as HTMLCanvasElement,
     assets: {
@@ -17,7 +17,7 @@ async function main() {
     },
   });
 
-  pearl.renderer.scale(8); // 512 x 512
+  pearl.renderer.scale(5); // 320 x 240
 }
 
 main();

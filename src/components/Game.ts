@@ -15,6 +15,8 @@ import Player from './Player';
 import Sign from './Sign';
 import FallingRenderer from './FallingRenderer';
 import DropZoneSwitch from './DropZoneSwitch';
+import Enemy from './Enemy';
+import Character from './Character';
 
 const level: TiledLevelJSON = require('../../assets/level.json');
 const tileset: TiledTilesetJSON = require('../../assets/micro-dungeon.json');
@@ -55,6 +57,7 @@ export default class Game extends Component<null> {
               height: 3.8,
             }),
             new Player(),
+            new Character(),
             new FallingRenderer(),
           ],
         });
@@ -95,7 +98,7 @@ export default class Game extends Component<null> {
           ],
         });
       } else if (type === 'switch') {
-        return new GameObject({
+        const switchObj = new GameObject({
           name: 'switch',
           tags: ['switch'],
           components: [
@@ -113,6 +116,38 @@ export default class Game extends Component<null> {
                 height: 6 * 4,
               },
             }),
+          ],
+        });
+
+        switchObj.getComponent(PolygonCollider).isTrigger = true;
+
+        return switchObj;
+      } else if (type === 'enemyRed') {
+        return new GameObject({
+          name: 'enemyRed',
+          tags: ['enemy'],
+          components: [
+            new AnimationManager({
+              sheet: this.pearl.assets.get(SpriteSheetAsset, 'sheet'),
+              initialState: 'idle',
+              animations: {
+                idle: {
+                  frames: [32],
+                  frameLengthMs: 0,
+                },
+                walking: {
+                  frames: [32, 33],
+                  frameLengthMs: 200,
+                },
+              },
+            }),
+            PolygonCollider.createBox({
+              width: 3.8,
+              height: 3.8,
+            }),
+            new Enemy(),
+            new Character(),
+            new FallingRenderer(),
           ],
         });
       } else {

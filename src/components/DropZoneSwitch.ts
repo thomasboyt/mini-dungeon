@@ -27,6 +27,7 @@ export default class DropZoneSwitch extends Component<Settings> {
 
   pressedSprite!: Sprite;
   unpressedSprite!: Sprite;
+  private removeDropZoneCoroutine?: IterableIterator<undefined>;
 
   init(settings: Settings) {
     this.dropZoneConfig = settings.dropZoneConfig;
@@ -44,7 +45,7 @@ export default class DropZoneSwitch extends Component<Settings> {
         .isColliding(this.getComponent(PolygonCollider))
     ) {
       this.press();
-    } else {
+    } else if (this.pressed) {
       this.unpress();
     }
   }
@@ -52,24 +53,36 @@ export default class DropZoneSwitch extends Component<Settings> {
   press() {
     this.pressed = true;
     this.getComponent(SpriteRenderer).sprite = this.pressedSprite;
+
     if (!this.dropZone) {
       this.dropZone = this.createDropZone();
+    }
+
+    if (this.removeDropZoneCoroutine) {
+      this.cancelCoroutine(this.removeDropZoneCoroutine);
     }
   }
 
   unpress() {
     this.pressed = false;
-    this.getComponent(SpriteRenderer).sprite = this.unpressedSprite;
-    if (this.dropZone) {
-      this.pearl.entities.destroy(this.dropZone);
-      delete this.dropZone;
-    }
+
+    this.removeDropZoneCoroutine = this.runCoroutine(function*(
+      this: DropZoneSwitch
+    ) {
+      yield this.pearl.async.waitMs(1000);
+      this.getComponent(SpriteRenderer).sprite = this.unpressedSprite;
+
+      if (this.dropZone) {
+        this.pearl.entities.destroy(this.dropZone);
+        delete this.dropZone;
+      }
+    });
   }
 
   createDropZone() {
     const config = this.dropZoneConfig;
 
-    return this.pearl.entities.add(
+    const dropZone = this.pearl.entities.add(
       new GameObject({
         name: 'dropZone',
         tags: ['dropZone'],
@@ -87,5 +100,9 @@ export default class DropZoneSwitch extends Component<Settings> {
         ],
       })
     );
+
+    dropZone.getComponent(PolygonCollider).isTrigger = true;
+
+    return dropZone;
   }
 }

@@ -57,6 +57,10 @@
         {
          "type":"switch"
         },
+     "32":
+        {
+         "type":"enemyRed"
+        },
      "40":
         {
          "type":"player"
