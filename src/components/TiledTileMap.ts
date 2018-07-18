@@ -3,9 +3,7 @@ import {
   Component,
   Sprite,
   GameObject,
-  PolygonCollider,
   Coordinates,
-  CollisionResponse,
   SpriteRenderer,
   Physical,
 } from 'pearl';
@@ -19,15 +17,7 @@ import {
   ObjectInfo,
   loadObject,
 } from '../tiled';
-
-interface TileCollisionInformation {
-  activeEdges: {
-    top: boolean;
-    bottom: boolean;
-    left: boolean;
-    right: boolean;
-  };
-}
+import TileMapCollider from './TileMapCollider';
 
 interface Settings {
   level: TiledLevelJSON;
@@ -46,7 +36,6 @@ export default class TiledTileMap extends Component<Settings> {
   tileSprites: { [id: string]: Sprite } = {};
 
   tileLayers: TiledTileLayer[] = [];
-  collisionMap: (TileCollisionInformation | null)[] = [];
 
   create(settings: Settings) {
     const { level, tileset, spriteSheet, entityFactory } = settings;
@@ -113,7 +102,7 @@ export default class TiledTileMap extends Component<Settings> {
       throw new Error('missing layer for walls (should be called "Walls"');
     }
 
-    this.collisionMap = wallLayer.data
+    this.getComponent(TileMapCollider).collisionMap = wallLayer.data
       .map((item) => {
         if (item === 0) {
           return false;
@@ -157,47 +146,6 @@ export default class TiledTileMap extends Component<Settings> {
 
   coordinatesToIdx(x: number, y: number): number {
     return y * this.width + x;
-  }
-
-  // TODO: Allow non-rectangular tiles
-  getCollision(
-    collider: PolygonCollider | SAT.Polygon
-  ): CollisionResponse | null {
-    const poly =
-      collider instanceof PolygonCollider ? collider.getSATPolygon() : collider;
-
-    for (let idx = 0; idx < this.collisionMap.length; idx += 1) {
-      const collisionInfo = this.collisionMap[idx];
-      if (!collisionInfo) {
-        continue;
-      }
-      const tileCoordinates = this.idxToCoordinates(idx);
-
-      const x = tileCoordinates.x * this.tileWidth;
-      const y = tileCoordinates.y * this.tileHeight;
-
-      const tilePoly = new SAT.Box(
-        new SAT.Vector(x, y),
-        this.tileWidth,
-        this.tileHeight
-      ).toPolygon();
-
-      const resp = new SAT.Response();
-      const collided = SAT.testPolygonPolygon(poly, tilePoly, resp);
-
-      if (collided && resp.overlap > 0) {
-        const overlapVector: [number, number] = [
-          resp.overlapV.x,
-          resp.overlapV.y,
-        ];
-        const overlap = resp.overlap;
-        const aInB = resp.aInB;
-        const bInA = resp.bInA;
-        return { overlapVector, overlap, aInB, bInA };
-      }
-    }
-
-    return null;
   }
 
   private renderTile(

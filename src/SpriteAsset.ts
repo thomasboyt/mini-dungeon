@@ -1,4 +1,4 @@
-import { AssetBase, Sprite } from 'pearl';
+import { AssetBase, Sprite } from '../../pearl/dist';
 
 export default class SpriteAsset extends AssetBase<Sprite> {
   constructor(path: string) {

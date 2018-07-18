@@ -4,12 +4,13 @@ import {
   Coordinates,
   AnimationManager,
   PolygonCollider,
-} from '../../../pearl/dist';
+} from 'pearl';
 import * as SAT from 'sat';
 import FallingRenderer from './FallingRenderer';
 import TiledTileMap from './TiledTileMap';
 import Player from './Player';
 import Character from './Character';
+import TileMapCollider from './TileMapCollider';
 
 // hm https://docs.unity3d.com/ScriptReference/Vector3.MoveTowards.html
 const moveTowards = (
@@ -54,8 +55,10 @@ export default class Enemy extends Component<void> {
       new SAT.Vector(xDiff, yDiff),
     ]);
 
-    const tileMap = this.gameObject.parent!.getComponent(TiledTileMap);
-    const canSeePlayer = !tileMap.getCollision(ray);
+    const tileMapCollider = this.gameObject.parent!.getComponent(
+      TileMapCollider
+    );
+    const canSeePlayer = !tileMapCollider.getCollision(ray);
 
     let xVec = 0;
     let yVec = 0;

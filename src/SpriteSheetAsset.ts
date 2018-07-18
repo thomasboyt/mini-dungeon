@@ -1,4 +1,4 @@
-import { AssetBase, SpriteSheet } from 'pearl';
+import { AssetBase, SpriteSheet } from '../../pearl/dist';
 
 export default class SpriteSheetAsset extends AssetBase<SpriteSheet> {
   spriteWidth: number;

@@ -5,6 +5,7 @@ import {
   PolygonCollider,
   GameObject,
   CollisionResponse,
+  ICollider,
 } from 'pearl';
 
 import TiledTileMap from './TiledTileMap';
@@ -57,21 +58,19 @@ export default class Character extends Component<null> {
     const colliders = this.pearl.entities
       .all()
       .filter((entity) => entity !== this.gameObject)
-      .map((entity) => entity.maybeGetComponent(PolygonCollider))
-      .filter((collider) => collider !== null) as PolygonCollider[];
+      .map((entity) => entity.collider)
+      .filter((collider) => collider) as ICollider[];
 
-    const collidables = [...colliders, tileMap];
-
-    return collidables
-      .map((collidable) => {
+    return colliders
+      .map((collider) => {
         let response: CollisionResponse | null;
         let isTrigger = false;
 
-        if (collidable instanceof PolygonCollider) {
-          response = collidable.getCollision(thisCollider);
-          isTrigger = collidable.isTrigger;
+        if (collider instanceof PolygonCollider) {
+          response = collider.getCollision(thisCollider);
+          isTrigger = collider.isTrigger;
         } else {
-          response = collidable.getCollision(thisCollider);
+          response = collider.getCollision(thisCollider);
         }
 
         if (!response) {
@@ -79,7 +78,7 @@ export default class Character extends Component<null> {
         }
 
         const collisionInformation: CollisionInformation = {
-          object: collidable.gameObject,
+          object: collider.gameObject,
           isTrigger,
           response,
         };

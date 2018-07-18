@@ -6,7 +6,7 @@ import {
   AnimationManager,
   PolygonCollider,
   PolygonRenderer,
-} from '../../../pearl/dist';
+} from 'pearl';
 import SpriteSheetAsset from '../SpriteSheetAsset';
 
 import { TiledLevelJSON, TiledTilesetJSON, ObjectInfo } from '../tiled';
@@ -18,6 +18,8 @@ import PitSwitch from './PitSwitch';
 import Enemy from './Enemy';
 import Character from './Character';
 import Pit from './Pit';
+import ArrowSpawner from './ArrowSpawner';
+import TileMapCollider from './TileMapCollider';
 
 const level: TiledLevelJSON = require('../../assets/level.json');
 const tileset: TiledTilesetJSON = require('../../assets/micro-dungeon.json');
@@ -164,7 +166,19 @@ export default class Game extends Component<null> {
             new Pit(),
           ],
         });
+      } else if (type === 'arrowSpawner') {
+        if (!objectInfo.name) {
+          console.log(objectInfo);
+          throw new Error('cannot create arrowSpawner without name');
+        }
+
+        return new GameObject({
+          name: objectInfo.name,
+          tags: ['arrowSpawner'],
+          components: [new ArrowSpawner()],
+        });
       } else {
+        console.log(objectInfo);
         throw new Error(`unrecognized object type ${type}`);
       }
     };
@@ -180,6 +194,7 @@ export default class Game extends Component<null> {
             spriteSheet: sheet,
             entityFactory: entityFactory,
           }),
+          new TileMapCollider(),
         ],
       })
     );

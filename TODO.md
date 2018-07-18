@@ -1,16 +1,7 @@
-- [ ] Load level & tileset
-- [ ] Render ground & wall tiles
-- [ ] Create collision map from wall tiles (lives in TileMap)
-  - [ ] Seam flagging
-    - https://github.com/thomasboyt/blorp/blob/9666bcf09c2c21b42255ad1a648c7240391e9f50/src/entities/World.js#L138
-- [ ] Create objects from object layer
+Bugs
 
-game:
-
-- run into room with enemy
-- trigger enemy pathfinding by getting close
-- run back to switch and pull
-- floor drops out
-  - render black rectangle over floor tiles
-- if enemy is within floor-drop-out zone, falls down and dies
-  - do a goofy decreasing scale over time to indicate falling :)
+- [ ] Fix pit being destroyed before entities have finished falling in
+  - Maybe some kind of check like if (this.fallingEntities.length > 0) { /* wait  */}
+  - Some kind of animation when pit opens/closes to help? Two trap doors swing out/in. If entities falling when swinging back shut, close over entity?
+    - zIndex will be tricky... pit should be under entity, but doors should be over
+    - doors should be child entities of pit, I guess, with higher zIndex
