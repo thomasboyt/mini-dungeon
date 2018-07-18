@@ -37,8 +37,8 @@
                  "type":"",
                  "visible":true,
                  "width":4,
-                 "x":40,
-                 "y":52
+                 "x":8,
+                 "y":16
                 }, 
                 {
                  "gid":30,
@@ -139,8 +139,8 @@
                  "type":"",
                  "visible":true,
                  "width":4,
-                 "x":8,
-                 "y":52
+                 "x":40,
+                 "y":48
                 }, 
                 {
                  "height":24,

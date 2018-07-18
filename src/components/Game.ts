@@ -20,6 +20,7 @@ import KinematicBody from './KinematicBody';
 import Pit from './Pit';
 import ArrowSpawner from './ArrowSpawner';
 import TileMapCollider from './TileMapCollider';
+import { ZIndex } from '../types';
 
 const level: TiledLevelJSON = require('../../assets/level.json');
 const tileset: TiledTilesetJSON = require('../../assets/micro-dungeon.json');
@@ -39,6 +40,7 @@ export default class Game extends Component<null> {
         return new GameObject({
           name: 'player',
           tags: ['player'],
+          zIndex: ZIndex.Character,
           components: [
             new AnimationManager({
               sheet: this.pearl.assets.get(SpriteSheetAsset, 'sheet'),
@@ -68,6 +70,7 @@ export default class Game extends Component<null> {
         return new GameObject({
           name: 'key',
           tags: ['key'],
+          zIndex: ZIndex.WorldObject,
           components: [
             PolygonCollider.createBox({
               width: 4,
@@ -79,6 +82,7 @@ export default class Game extends Component<null> {
         return new GameObject({
           name: 'door',
           tags: ['door'],
+          zIndex: ZIndex.WorldObject,
           components: [
             PolygonCollider.createBox({
               width: 4,
@@ -90,6 +94,7 @@ export default class Game extends Component<null> {
         return new GameObject({
           name: 'sign',
           tags: ['sign'],
+          zIndex: ZIndex.WorldObject,
           components: [
             PolygonCollider.createBox({
               width: 4,
@@ -104,6 +109,7 @@ export default class Game extends Component<null> {
         const switchObj = new GameObject({
           name: 'switch',
           tags: ['switch'],
+          zIndex: ZIndex.GroundObject,
           components: [
             PolygonCollider.createBox({
               width: 4,
@@ -122,6 +128,7 @@ export default class Game extends Component<null> {
         return new GameObject({
           name: 'enemyRed',
           tags: ['enemy'],
+          zIndex: ZIndex.Character,
           components: [
             new AnimationManager({
               sheet: this.pearl.assets.get(SpriteSheetAsset, 'sheet'),
@@ -155,6 +162,7 @@ export default class Game extends Component<null> {
         return new GameObject({
           name: objectInfo.name,
           tags: ['pit'],
+          zIndex: ZIndex.GroundObject,
           components: [
             PolygonCollider.createBox({
               width: objectInfo.width,
@@ -186,7 +194,7 @@ export default class Game extends Component<null> {
     this.pearl.entities.add(
       new GameObject({
         name: 'level',
-        zIndex: -1,
+        zIndex: ZIndex.World,
         components: [
           new TiledTileMap({
             level,
