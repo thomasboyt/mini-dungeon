@@ -9,6 +9,8 @@ import {
 } from 'pearl';
 
 import * as SAT from 'sat';
+import memoize from 'micro-memoize';
+import { deepEqual } from 'fast-equals';
 
 import {
   TiledLevelJSON,
@@ -102,40 +104,21 @@ export default class TiledTileMap extends Component<Settings> {
       throw new Error('missing layer for walls (should be called "Walls"');
     }
 
-    this.getComponent(TileMapCollider).collisionMap = wallLayer.data
-      .map((item) => {
-        if (item === 0) {
-          return false;
-        }
+    const collisionMap = wallLayer.data.map((item) => {
+      if (item === 0) {
+        return false;
+      }
 
-        const gid = item - 1;
+      const gid = item - 1;
 
-        if (tileset.tiles[gid].type === 'wall') {
-          return true;
-        } else {
-          return false;
-        }
-      })
-      .map((isCollision, idx, arr) => {
-        if (isCollision) {
-          // check siblings
-          const { x, y } = this.idxToCoordinates(idx);
-          const north = arr[this.coordinatesToIdx(x, y - 1)];
-          const south = arr[this.coordinatesToIdx(x, y + 1)];
-          const west = arr[this.coordinatesToIdx(x - 1, y)];
-          const east = arr[this.coordinatesToIdx(x + 1, y)];
-          return {
-            activeEdges: {
-              top: !north,
-              left: !west,
-              right: !east,
-              bottom: !south,
-            },
-          };
-        } else {
-          return null;
-        }
-      });
+      if (tileset.tiles[gid].type === 'wall') {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    this.getComponent(TileMapCollider).initializeCollisions(collisionMap);
   }
 
   idxToCoordinates(idx: number): Coordinates {
@@ -165,13 +148,28 @@ export default class TiledTileMap extends Component<Settings> {
     );
   }
 
-  render(ctx: CanvasRenderingContext2D) {
-    for (let layer of this.tileLayers) {
+  private _drawTiles(tileLayers: TiledTileLayer[]): HTMLCanvasElement {
+    const canvas = document.createElement('canvas');
+    canvas.width = this.tileWidth * this.width;
+    canvas.height = this.tileHeight * this.height;
+    const ctx = canvas.getContext('2d')!;
+
+    for (let layer of tileLayers) {
       for (let i = 0; i < layer.data.length; i += 1) {
         const id = layer.data[i];
         const { x, y } = this.idxToCoordinates(i);
         this.renderTile(ctx, id, x, y);
       }
     }
+
+    return canvas;
+  }
+
+  private drawTiles = memoize(this._drawTiles, { isEqual: deepEqual });
+
+  // TODO: allow TiledTileMap to be positioned
+  render(ctx: CanvasRenderingContext2D) {
+    const canvas = this.drawTiles(this.tileLayers);
+    ctx.drawImage(canvas, 0, 0);
   }
 }

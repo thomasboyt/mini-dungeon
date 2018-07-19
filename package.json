@@ -13,6 +13,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "fast-equals": "^1.5.3",
+    "micro-memoize": "^2.0.3",
     "pearl": "git://github.com/thomasboyt/pearl.git"
   },
   "devDependencies": {

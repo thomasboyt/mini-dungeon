@@ -8,6 +8,7 @@ import * as SAT from 'sat';
 import TiledTileMap from './TiledTileMap';
 
 interface TileCollisionInformation {
+  polygon: SAT.Polygon;
   activeEdges: {
     top: boolean;
     bottom: boolean;
@@ -25,6 +26,42 @@ export default class TileMapCollider extends Component<void>
 
   create() {
     this.gameObject.registerCollider(this);
+  }
+
+  initializeCollisions(collisionMap: boolean[]) {
+    const tileMap = this.getComponent(TiledTileMap);
+
+    this.collisionMap = collisionMap.map((isCollision, idx, arr) => {
+      if (isCollision) {
+        // check siblings
+        const { x, y } = tileMap.idxToCoordinates(idx);
+        const north = arr[tileMap.coordinatesToIdx(x, y - 1)];
+        const south = arr[tileMap.coordinatesToIdx(x, y + 1)];
+        const west = arr[tileMap.coordinatesToIdx(x - 1, y)];
+        const east = arr[tileMap.coordinatesToIdx(x + 1, y)];
+
+        const worldX = x * tileMap.tileWidth;
+        const worldY = y * tileMap.tileHeight;
+
+        const polygon = new SAT.Box(
+          new SAT.Vector(worldX, worldY),
+          tileMap.tileWidth,
+          tileMap.tileHeight
+        ).toPolygon();
+
+        return {
+          polygon,
+          activeEdges: {
+            top: !north,
+            left: !west,
+            right: !east,
+            bottom: !south,
+          },
+        };
+      } else {
+        return null;
+      }
+    });
   }
 
   isColliding(other: ICollider): boolean {
@@ -58,16 +95,8 @@ export default class TileMapCollider extends Component<void>
       if (!collisionInfo) {
         continue;
       }
-      const tileCoordinates = tileMap.idxToCoordinates(idx);
 
-      const x = tileCoordinates.x * tileMap.tileWidth;
-      const y = tileCoordinates.y * tileMap.tileHeight;
-
-      const tilePoly = new SAT.Box(
-        new SAT.Vector(x, y),
-        tileMap.tileWidth,
-        tileMap.tileHeight
-      ).toPolygon();
+      const tilePoly = collisionInfo.polygon;
 
       const resp = new SAT.Response();
       const collided = SAT.testPolygonPolygon(poly, tilePoly, resp);
