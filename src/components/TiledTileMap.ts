@@ -18,7 +18,7 @@ import {
   ObjectInfo,
   loadObject,
 } from '../tiled';
-import TileMapCollider from './TileMapCollider';
+import TileMapCollider, { ITileMap } from './TileMapCollider';
 
 interface Settings {
   level: TiledLevelJSON;
@@ -27,7 +27,8 @@ interface Settings {
   entityFactory: (type: string, objectInfo: ObjectInfo) => GameObject;
 }
 
-export default class TiledTileMap extends Component<Settings> {
+export default class TiledTileMap extends Component<Settings>
+  implements ITileMap {
   width!: number;
   height!: number;
   tileWidth!: number;
@@ -117,17 +118,17 @@ export default class TiledTileMap extends Component<Settings> {
       }
     });
 
-    this.getComponent(TileMapCollider).initializeCollisions(collisionMap);
+    this.getComponent(TileMapCollider).initializeCollisions(this, collisionMap);
   }
 
-  idxToCoordinates(idx: number): Coordinates {
+  idxToTileCoordinates(idx: number): Coordinates {
     const tx = idx % this.width;
     const ty = Math.floor(idx / this.width);
     return { x: tx, y: ty };
   }
 
-  coordinatesToIdx(x: number, y: number): number {
-    return y * this.width + x;
+  tileCoordinatesToIdx(tilePos: Coordinates): number {
+    return tilePos.y * this.width + tilePos.x;
   }
 
   private renderTile(
@@ -156,7 +157,7 @@ export default class TiledTileMap extends Component<Settings> {
     for (let layer of tileLayers) {
       for (let i = 0; i < layer.data.length; i += 1) {
         const id = layer.data[i];
-        const { x, y } = this.idxToCoordinates(i);
+        const { x, y } = this.idxToTileCoordinates(i);
         this.renderTile(ctx, id, x, y);
       }
     }

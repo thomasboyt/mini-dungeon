@@ -5,8 +5,9 @@ import {
   Collider,
   CollisionShape,
   Position,
+  Coordinates,
+  Physical,
 } from 'pearl';
-import TiledTileMap from './TiledTileMap';
 
 interface TileCollisionInformation {
   polygon: PolygonShape;
@@ -19,6 +20,13 @@ interface TileCollisionInformation {
   };
 }
 
+export interface ITileMap {
+  idxToTileCoordinates(idx: number): Coordinates;
+  tileCoordinatesToIdx(tilePos: Coordinates): number;
+  tileWidth: number;
+  tileHeight: number;
+}
+
 export default class TileMapCollider extends Collider {
   isEnabled = true;
   isTrigger = false;
@@ -29,17 +37,15 @@ export default class TileMapCollider extends Collider {
     this.gameObject.registerCollider(this);
   }
 
-  initializeCollisions(collisionMap: boolean[]) {
-    const tileMap = this.getComponent(TiledTileMap);
-
+  initializeCollisions(tileMap: ITileMap, collisionMap: boolean[]) {
     this.collisionMap = collisionMap.map((isCollision, idx, arr) => {
       if (isCollision) {
         // check siblings
-        const { x, y } = tileMap.idxToCoordinates(idx);
-        const north = arr[tileMap.coordinatesToIdx(x, y - 1)];
-        const south = arr[tileMap.coordinatesToIdx(x, y + 1)];
-        const west = arr[tileMap.coordinatesToIdx(x - 1, y)];
-        const east = arr[tileMap.coordinatesToIdx(x + 1, y)];
+        const { x, y } = tileMap.idxToTileCoordinates(idx);
+        const north = arr[tileMap.tileCoordinatesToIdx({ x, y: y - 1 })];
+        const south = arr[tileMap.tileCoordinatesToIdx({ x, y: y + 1 })];
+        const west = arr[tileMap.tileCoordinatesToIdx({ x: x - 1, y })];
+        const east = arr[tileMap.tileCoordinatesToIdx({ x: x + 1, y })];
 
         const worldX = x * tileMap.tileWidth;
         const worldY = y * tileMap.tileHeight;
@@ -71,9 +77,9 @@ export default class TileMapCollider extends Collider {
   }
 
   // TODO: Allow non-rectangular tiles
-  // TODO: Support colliders other than PolygonCollider
   testShape(shape: CollisionShape, otherPosition: Position) {
-    const tileMap = this.getComponent(TiledTileMap);
+    const phys = this.gameObject.maybeGetComponent(Physical);
+    const worldCenter = phys ? phys.center : { x: 0, y: 0 };
 
     for (let idx = 0; idx < this.collisionMap.length; idx += 1) {
       const collisionInfo = this.collisionMap[idx];
@@ -83,10 +89,18 @@ export default class TileMapCollider extends Collider {
 
       const tilePolygonShape = collisionInfo.polygon;
 
+      const worldPosition = {
+        ...collisionInfo.position,
+        center: {
+          x: collisionInfo.position.center.x + worldCenter.x,
+          y: collisionInfo.position.center.y + worldCenter.y,
+        },
+      };
+
       // TODO: should this be inverted?
       const resp = tilePolygonShape.testShape(
         shape,
-        collisionInfo.position,
+        worldPosition,
         otherPosition
       );
 
