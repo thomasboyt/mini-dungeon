@@ -9,7 +9,7 @@ import {
   CollisionInformation,
   MouseButton,
   KinematicBody,
-  PolygonCollider,
+  BoxCollider,
 } from 'pearl';
 import Sign from './Sign';
 import SpriteAsset from '../SpriteAsset';
@@ -110,7 +110,7 @@ export default class Player extends Component<null> {
           new Physical({
             angle: (45 + 90) * (Math.PI / 180),
           }),
-          new PolygonCollider(),
+          new BoxCollider(),
           new SpriteRenderer({
             sprite: this.pearl.assets.get(SpriteAsset, 'sword'),
             scaleX: 1 / 4,

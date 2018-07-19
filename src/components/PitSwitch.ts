@@ -6,7 +6,7 @@ import {
   GameObject,
   SpriteRenderer,
   Sprite,
-  PolygonCollider,
+  BoxCollider,
 } from 'pearl';
 import SpriteAsset from '../SpriteAsset';
 import Pit from './Pit';
@@ -58,8 +58,8 @@ export default class DropZoneSwitch extends Component<Settings> {
 
     if (
       player
-        .getComponent(PolygonCollider)
-        .isColliding(this.getComponent(PolygonCollider))
+        .getComponent(BoxCollider)
+        .isColliding(this.getComponent(BoxCollider))
     ) {
       this.press();
     } else if (this.pressed) {

@@ -1,11 +1,11 @@
-import { Component, PolygonRenderer, PolygonCollider } from 'pearl';
+import { Component, PolygonRenderer, BoxCollider } from 'pearl';
 
 export default class Pit extends Component<void> {
   private deactivateCoroutine?: IterableIterator<undefined>;
 
   init() {
     this.getComponent(PolygonRenderer).isVisible = false;
-    this.getComponent(PolygonCollider).isEnabled = false;
+    this.getComponent(BoxCollider).isEnabled = false;
   }
 
   activate() {
@@ -13,18 +13,18 @@ export default class Pit extends Component<void> {
       this.cancelCoroutine(this.deactivateCoroutine);
     }
 
-    this.getComponent(PolygonCollider).isTrigger = true;
+    this.getComponent(BoxCollider).isTrigger = true;
     this.getComponent(PolygonRenderer).isVisible = true;
-    this.getComponent(PolygonCollider).isEnabled = true;
+    this.getComponent(BoxCollider).isEnabled = true;
   }
 
   deactivate() {
-    this.getComponent(PolygonCollider).isTrigger = false;
+    this.getComponent(BoxCollider).isTrigger = false;
 
     this.deactivateCoroutine = this.runCoroutine(function*(this: Pit) {
       yield this.pearl.async.waitMs(1000);
       this.getComponent(PolygonRenderer).isVisible = false;
-      this.getComponent(PolygonCollider).isEnabled = false;
+      this.getComponent(BoxCollider).isEnabled = false;
       this.deactivateCoroutine = undefined;
     });
   }

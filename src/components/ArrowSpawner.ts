@@ -4,7 +4,7 @@ import {
   GameObject,
   Physical,
   KinematicBody,
-  PolygonCollider,
+  BoxCollider,
 } from 'pearl';
 import Arrow from './Arrow';
 
@@ -31,7 +31,7 @@ export default class ArrowSpawner extends Component<void> {
               y: phys.center.y,
             },
           }),
-          PolygonCollider.createBox({
+          new BoxCollider({
             width: 2,
             height: 1,
           }),
@@ -44,6 +44,6 @@ export default class ArrowSpawner extends Component<void> {
       })
     );
 
-    arrow.getComponent(PolygonCollider).isTrigger = true;
+    arrow.getComponent(BoxCollider).isTrigger = true;
   }
 }

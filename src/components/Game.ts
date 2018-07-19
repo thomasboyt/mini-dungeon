@@ -6,7 +6,7 @@ import {
   AnimationManager,
   PolygonRenderer,
   KinematicBody,
-  PolygonCollider,
+  BoxCollider,
 } from 'pearl';
 import SpriteSheetAsset from '../SpriteSheetAsset';
 
@@ -57,7 +57,7 @@ export default class Game extends Component<null> {
               },
             }),
             // slightly smaller
-            PolygonCollider.createBox({
+            new BoxCollider({
               width: 3.8,
               height: 3.8,
             }),
@@ -72,7 +72,7 @@ export default class Game extends Component<null> {
           tags: ['key'],
           zIndex: ZIndex.WorldObject,
           components: [
-            PolygonCollider.createBox({
+            new BoxCollider({
               width: 4,
               height: 4,
             }),
@@ -84,7 +84,7 @@ export default class Game extends Component<null> {
           tags: ['door'],
           zIndex: ZIndex.WorldObject,
           components: [
-            PolygonCollider.createBox({
+            new BoxCollider({
               width: 4,
               height: 4,
             }),
@@ -96,7 +96,7 @@ export default class Game extends Component<null> {
           tags: ['sign'],
           zIndex: ZIndex.WorldObject,
           components: [
-            PolygonCollider.createBox({
+            new BoxCollider({
               width: 4,
               height: 4,
             }),
@@ -111,7 +111,7 @@ export default class Game extends Component<null> {
           tags: ['switch'],
           zIndex: ZIndex.GroundObject,
           components: [
-            PolygonCollider.createBox({
+            new BoxCollider({
               width: 4,
               height: 4,
             }),
@@ -121,7 +121,7 @@ export default class Game extends Component<null> {
           ],
         });
 
-        switchObj.getComponent(PolygonCollider).isTrigger = true;
+        switchObj.getComponent(BoxCollider).isTrigger = true;
 
         return switchObj;
       } else if (type === 'enemyRed') {
@@ -144,7 +144,7 @@ export default class Game extends Component<null> {
                 },
               },
             }),
-            PolygonCollider.createBox({
+            new BoxCollider({
               width: 3.8,
               height: 3.8,
             }),
@@ -164,7 +164,7 @@ export default class Game extends Component<null> {
           tags: ['pit'],
           zIndex: ZIndex.GroundObject,
           components: [
-            PolygonCollider.createBox({
+            new BoxCollider({
               width: objectInfo.width,
               height: objectInfo.height,
             }),
