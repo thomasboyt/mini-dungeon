@@ -9,23 +9,23 @@ import {
   BoxCollider,
 } from 'pearl';
 import SpriteAsset from '../SpriteAsset';
-import Pit from './Pit';
+import Trap from './Trap';
 
 interface Settings {
-  pitName: string;
+  trapName: string;
 }
 
-export default class DropZoneSwitch extends Component<Settings> {
+export default class TrapSwitch extends Component<Settings> {
   pressed = false;
-  pitName!: string;
-  pit!: GameObject;
+  trapName!: string;
+  trap!: GameObject;
 
   pressedSprite!: Sprite;
   unpressedSprite!: Sprite;
-  private closePitCoroutine?: IterableIterator<undefined>;
+  private deactivateCoroutine?: IterableIterator<undefined>;
 
   init(settings: Settings) {
-    this.pitName = settings.pitName;
+    this.trapName = settings.trapName;
     this.pressedSprite = this.pearl.assets.get(SpriteAsset, 'pressedSwitch');
     this.unpressedSprite = this.getComponent(SpriteRenderer).sprite!;
   }
@@ -35,23 +35,23 @@ export default class DropZoneSwitch extends Component<Settings> {
   // really indicates that Pearl's lifecycle might need a further rethink. Maybe
   // all() should be able to return entities components? Or at least entities
   // that are going to be initialized on this frame?
-  setPit() {
-    const pit = this.pearl.entities
-      .all('pit')
-      .find((obj) => obj.name === this.pitName);
+  setTrap() {
+    const trap = this.pearl.entities
+      .all('trap')
+      .find((obj) => obj.name === this.trapName);
 
-    if (!pit) {
+    if (!trap) {
       throw new Error(
-        `error creating switch: could not find pit of name ${this.pitName}`
+        `error creating switch: could not find trap of name ${this.trapName}`
       );
     }
 
-    this.pit = pit;
+    this.trap = trap;
   }
 
   update(dt: number) {
-    if (!this.pit) {
-      this.setPit();
+    if (!this.trap) {
+      this.setTrap();
     }
 
     const player = this.pearl.entities.all('player')[0]!;
@@ -71,18 +71,18 @@ export default class DropZoneSwitch extends Component<Settings> {
     this.pressed = true;
     this.getComponent(SpriteRenderer).sprite = this.pressedSprite;
 
-    this.pit.getComponent(Pit).activate();
+    this.trap.getComponent(Trap).activate();
 
-    if (this.closePitCoroutine) {
-      this.cancelCoroutine(this.closePitCoroutine);
+    if (this.deactivateCoroutine) {
+      this.cancelCoroutine(this.deactivateCoroutine);
     }
   }
 
   unpress() {
     this.pressed = false;
 
-    this.closePitCoroutine = this.runCoroutine(function*(this: DropZoneSwitch) {
-      this.pit!.getComponent(Pit).deactivate();
+    this.deactivateCoroutine = this.runCoroutine(function*(this: TrapSwitch) {
+      this.trap!.getComponent(Trap).deactivate();
       yield this.pearl.async.waitMs(1000);
       this.getComponent(SpriteRenderer).sprite = this.unpressedSprite;
     });

@@ -61,13 +61,19 @@ export default class Player extends Component<null> {
 
     if (uVelocity.x || uVelocity.y) {
       this.facing = { x: uVelocity.x, y: uVelocity.y };
+      this.getComponent(KinematicBody).moveAndSlide({
+        x: uVelocity.x * dt * this.playerSpeed,
+        y: uVelocity.y * dt * this.playerSpeed,
+      });
     }
+
+    this.moveCamera(dt);
+
+    this.setAnimation(uVelocity.x, uVelocity.y);
 
     if (this.pearl.inputter.isKeyPressed(Keys.space)) {
       this.stab();
     }
-
-    this.updateMove(dt, uVelocity.x, uVelocity.y);
   }
 
   private getPointerMovement(viewPos: Coordinates): Coordinates {
@@ -130,17 +136,6 @@ export default class Player extends Component<null> {
       this.pearl.entities.destroy(this.sword!);
       delete this.sword;
     });
-  }
-
-  private updateMove(dt: number, xVec: number, yVec: number) {
-    this.setAnimation(xVec, yVec);
-
-    this.getComponent(KinematicBody).moveAndSlide({
-      x: xVec * dt * this.playerSpeed,
-      y: yVec * dt * this.playerSpeed,
-    });
-
-    this.moveCamera(dt);
   }
 
   private setAnimation(xVec: number, yVec: number) {

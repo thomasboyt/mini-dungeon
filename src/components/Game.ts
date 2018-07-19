@@ -15,7 +15,7 @@ import TiledTileMap from './TiledTileMap';
 import Player from './Player';
 import Sign from './Sign';
 import FallingRenderer from './FallingRenderer';
-import PitSwitch from './PitSwitch';
+import TrapSwitch from './TrapSwitch';
 import Enemy from './Enemy';
 import Pit from './Pit';
 import ArrowSpawner from './ArrowSpawner';
@@ -115,8 +115,8 @@ export default class Game extends Component<null> {
               width: 4,
               height: 4,
             }),
-            new PitSwitch({
-              pitName: objectInfo.properties.pitName,
+            new TrapSwitch({
+              trapName: objectInfo.properties.trapName,
             }),
           ],
         });
@@ -161,7 +161,7 @@ export default class Game extends Component<null> {
 
         return new GameObject({
           name: objectInfo.name,
-          tags: ['pit'],
+          tags: ['pit', 'trap'],
           zIndex: ZIndex.GroundObject,
           components: [
             new BoxCollider({
@@ -182,8 +182,12 @@ export default class Game extends Component<null> {
 
         return new GameObject({
           name: objectInfo.name,
-          tags: ['arrowSpawner'],
-          components: [new ArrowSpawner()],
+          tags: ['arrowSpawner', 'trap'],
+          components: [
+            new ArrowSpawner({
+              angle: objectInfo.properties.angle,
+            }),
+          ],
         });
       } else {
         console.log(objectInfo);

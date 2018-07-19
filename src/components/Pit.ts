@@ -1,6 +1,7 @@
 import { Component, PolygonRenderer, BoxCollider } from 'pearl';
+import Trap from './Trap';
 
-export default class Pit extends Component<void> {
+export default class Pit extends Trap<void> {
   private deactivateCoroutine?: IterableIterator<undefined>;
 
   init() {

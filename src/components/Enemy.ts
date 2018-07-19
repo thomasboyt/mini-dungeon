@@ -99,6 +99,10 @@ export default class Enemy extends Component<void> {
           this.pearl.entities.destroy(this.gameObject);
         });
       }
+    } else if (collision.gameObject.hasTag('arrow')) {
+      this.dead = true;
+      this.getComponent(AnimationManager).set('idle');
+      this.pearl.entities.destroy(this.gameObject);
     }
   }
 }
