@@ -4,12 +4,13 @@ import {
   Coordinates,
   AnimationManager,
   PolygonCollider,
+  CollisionInformation,
+  KinematicBody,
 } from 'pearl';
 import * as SAT from 'sat';
 import FallingRenderer from './FallingRenderer';
 import TiledTileMap from './TiledTileMap';
 import Player from './Player';
-import KinematicBody from './KinematicBody';
 import TileMapCollider from './TileMapCollider';
 
 // hm https://docs.unity3d.com/ScriptReference/Vector3.MoveTowards.html
@@ -83,19 +84,19 @@ export default class Enemy extends Component<void> {
       x: xVec,
       y: yVec,
     });
+  }
 
-    for (let collision of collisions) {
-      if (collision.object.hasTag('pit')) {
-        if (collision.response.bInA) {
-          this.dead = true;
-          this.getComponent(AnimationManager).set('idle');
-          this.getComponent(FallingRenderer).start();
+  onCollision(collision: CollisionInformation) {
+    if (collision.gameObject.hasTag('pit')) {
+      if (collision.response.aInB) {
+        this.dead = true;
+        this.getComponent(AnimationManager).set('idle');
+        this.getComponent(FallingRenderer).start();
 
-          this.runCoroutine(function*(this: Enemy) {
-            yield this.pearl.async.waitMs(1000);
-            this.pearl.entities.destroy(this.gameObject);
-          });
-        }
+        this.runCoroutine(function*(this: Enemy) {
+          yield this.pearl.async.waitMs(1000);
+          this.pearl.entities.destroy(this.gameObject);
+        });
       }
     }
   }

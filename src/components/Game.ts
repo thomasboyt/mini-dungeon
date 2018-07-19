@@ -6,6 +6,7 @@ import {
   AnimationManager,
   PolygonCollider,
   PolygonRenderer,
+  KinematicBody,
 } from 'pearl';
 import SpriteSheetAsset from '../SpriteSheetAsset';
 
@@ -16,7 +17,6 @@ import Sign from './Sign';
 import FallingRenderer from './FallingRenderer';
 import PitSwitch from './PitSwitch';
 import Enemy from './Enemy';
-import KinematicBody from './KinematicBody';
 import Pit from './Pit';
 import ArrowSpawner from './ArrowSpawner';
 import TileMapCollider from './TileMapCollider';

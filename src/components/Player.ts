@@ -7,14 +7,14 @@ import {
   Coordinates,
   GameObject,
   SpriteRenderer,
-  CollisionResponse,
+  CollisionInformation,
+  MouseButton,
+  KinematicBody,
 } from 'pearl';
 import Sign from './Sign';
 import SpriteAsset from '../SpriteAsset';
 import Sword from './Sword';
 import FallingRenderer from './FallingRenderer';
-import KinematicBody, { CollisionInformation } from './KinematicBody';
-import { MouseButton } from '../../node_modules/pearl/dist/Inputter/ButtonListener';
 
 const lerp = (a: number, b: number, f: number) => a + (b - a) * f;
 
@@ -135,14 +135,12 @@ export default class Player extends Component<null> {
   private updateMove(dt: number, xVec: number, yVec: number) {
     this.setAnimation(xVec, yVec);
 
-    const collisions = this.getComponent(KinematicBody).moveAndSlide({
+    this.getComponent(KinematicBody).moveAndSlide({
       x: xVec * dt * this.playerSpeed,
       y: yVec * dt * this.playerSpeed,
     });
 
     this.moveCamera(dt);
-
-    this.handleCollisions(collisions);
   }
 
   private setAnimation(xVec: number, yVec: number) {
@@ -188,29 +186,30 @@ export default class Player extends Component<null> {
     this.pearl.renderer.setViewCenter(newViewCenter);
   }
 
-  private handleCollisions(collisions: CollisionInformation[]) {
-    for (let collision of collisions) {
-      if (collision.object.hasTag('key')) {
-        this.pearl.entities.destroy(collision.object);
-        this.hasKey = true;
-      } else if (collision.object.hasTag('door')) {
-        if (this.hasKey) {
-          this.pearl.entities.destroy(collision.object);
-          this.hasKey = false;
-        }
-      } else if (collision.object.hasTag('sign')) {
-        collision.object.getComponent(Sign).showText();
-      } else if (collision.object.hasTag('pit')) {
-        if (collision.response.bInA) {
-          this.dead = true;
-          this.getComponent(AnimationManager).set('idle');
-          this.getComponent(FallingRenderer).start();
-        }
-      } else if (collision.object.hasTag('enemy')) {
+  onCollision(collision: CollisionInformation) {
+    if (collision.gameObject.hasTag('key')) {
+      this.pearl.entities.destroy(collision.gameObject);
+      this.hasKey = true;
+    } else if (collision.gameObject.hasTag('door')) {
+      if (this.hasKey) {
+        this.pearl.entities.destroy(collision.gameObject);
+        this.hasKey = false;
+      }
+    } else if (collision.gameObject.hasTag('sign')) {
+      collision.gameObject.getComponent(Sign).showText();
+    } else if (collision.gameObject.hasTag('pit')) {
+      if (collision.response.bInA) {
         this.dead = true;
         this.getComponent(AnimationManager).set('idle');
-        this.getComponent(Physical).angle = -90 * (Math.PI / 180);
+        this.getComponent(FallingRenderer).start();
       }
+    } else if (
+      collision.gameObject.hasTag('enemy') ||
+      collision.gameObject.hasTag('arrow')
+    ) {
+      this.dead = true;
+      this.getComponent(AnimationManager).set('idle');
+      this.getComponent(Physical).angle = -90 * (Math.PI / 180);
     }
   }
 }

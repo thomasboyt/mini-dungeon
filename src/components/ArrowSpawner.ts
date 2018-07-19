@@ -4,8 +4,8 @@ import {
   PolygonCollider,
   GameObject,
   Physical,
+  KinematicBody,
 } from 'pearl';
-import KinematicBody from './KinematicBody';
 import Arrow from './Arrow';
 
 export default class ArrowSpawner extends Component<void> {
