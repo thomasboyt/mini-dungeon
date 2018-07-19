@@ -7,7 +7,6 @@ import {
   KinematicBody,
   PolygonShape,
 } from 'pearl';
-import * as SAT from 'sat';
 import FallingRenderer from './FallingRenderer';
 import TiledTileMap from './TiledTileMap';
 import Player from './Player';

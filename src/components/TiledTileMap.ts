@@ -8,7 +8,6 @@ import {
   Physical,
 } from 'pearl';
 
-import * as SAT from 'sat';
 import memoize from 'micro-memoize';
 import { deepEqual } from 'fast-equals';
 

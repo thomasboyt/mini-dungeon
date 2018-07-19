@@ -5,7 +5,6 @@ import {
   SpriteRenderer,
   PolygonCollider,
 } from 'pearl';
-import { Polygon } from 'sat';
 
 interface Settings {
   direction: Coordinates;
