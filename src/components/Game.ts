@@ -1,26 +1,12 @@
-import {
-  Component,
-  createPearl,
-  Sprite,
-  GameObject,
-  AnimationManager,
-  PolygonRenderer,
-  KinematicBody,
-  BoxCollider,
-} from 'pearl';
-import SpriteSheetAsset from '../SpriteSheetAsset';
+import { Component, createPearl, GameObject } from 'pearl';
 
-import { TiledLevelJSON, TiledTilesetJSON, ObjectInfo } from '../tiled';
-import TiledTileMap from './TiledTileMap';
-import Player from './Player';
-import Sign from './Sign';
-import FallingRenderer from './FallingRenderer';
-import TrapSwitch from './TrapSwitch';
-import Enemy from './Enemy';
-import Pit from './Pit';
-import ArrowSpawner from './ArrowSpawner';
-import TileMapCollider from './TileMapCollider';
+import { tiledEntityFactories } from '../entityFactories';
+import { TiledLevelJSON, TiledTilesetJSON } from '../tiled';
+import SpriteSheetAsset from '../SpriteSheetAsset';
 import { ZIndex } from '../types';
+
+import TiledTileMap from './TiledTileMap';
+import TileMapCollider from './TileMapCollider';
 
 const level: TiledLevelJSON = require('../../assets/level.json');
 const tileset: TiledTilesetJSON = require('../../assets/micro-dungeon.json');
@@ -28,172 +14,6 @@ const tileset: TiledTilesetJSON = require('../../assets/micro-dungeon.json');
 export default class Game extends Component<null> {
   init() {
     const sheet = this.pearl.assets.get(SpriteSheetAsset, 'sheet');
-
-    const entityFactory = (
-      type: string,
-      objectInfo: ObjectInfo
-    ): GameObject => {
-      const x = objectInfo.topLeftX + 2;
-      const y = objectInfo.topLeftY + 2;
-
-      if (type === 'player') {
-        return new GameObject({
-          name: 'player',
-          tags: ['player'],
-          zIndex: ZIndex.Character,
-          components: [
-            new AnimationManager({
-              sheet: this.pearl.assets.get(SpriteSheetAsset, 'sheet'),
-              initialState: 'idle',
-              animations: {
-                idle: {
-                  frames: [40],
-                  frameLengthMs: 0,
-                },
-                walking: {
-                  frames: [41, 40],
-                  frameLengthMs: 200,
-                },
-              },
-            }),
-            // slightly smaller
-            new BoxCollider({
-              width: 3.8,
-              height: 3.8,
-            }),
-            new Player(),
-            new KinematicBody(),
-            new FallingRenderer(),
-          ],
-        });
-      } else if (type === 'key') {
-        return new GameObject({
-          name: 'key',
-          tags: ['key'],
-          zIndex: ZIndex.WorldObject,
-          components: [
-            new BoxCollider({
-              width: 4,
-              height: 4,
-            }),
-          ],
-        });
-      } else if (type === 'door') {
-        return new GameObject({
-          name: 'door',
-          tags: ['door'],
-          zIndex: ZIndex.WorldObject,
-          components: [
-            new BoxCollider({
-              width: 4,
-              height: 4,
-            }),
-          ],
-        });
-      } else if (type === 'sign') {
-        return new GameObject({
-          name: 'sign',
-          tags: ['sign'],
-          zIndex: ZIndex.WorldObject,
-          components: [
-            new BoxCollider({
-              width: 4,
-              height: 4,
-            }),
-            new Sign({
-              text: objectInfo.properties['text'],
-            }),
-          ],
-        });
-      } else if (type === 'switch') {
-        const switchObj = new GameObject({
-          name: 'switch',
-          tags: ['switch'],
-          zIndex: ZIndex.GroundObject,
-          components: [
-            new BoxCollider({
-              width: 4,
-              height: 4,
-            }),
-            new TrapSwitch({
-              trapName: objectInfo.properties.trapName,
-            }),
-          ],
-        });
-
-        switchObj.getComponent(BoxCollider).isTrigger = true;
-
-        return switchObj;
-      } else if (type === 'enemyRed') {
-        return new GameObject({
-          name: 'enemyRed',
-          tags: ['enemy'],
-          zIndex: ZIndex.Character,
-          components: [
-            new AnimationManager({
-              sheet: this.pearl.assets.get(SpriteSheetAsset, 'sheet'),
-              initialState: 'idle',
-              animations: {
-                idle: {
-                  frames: [32],
-                  frameLengthMs: 0,
-                },
-                walking: {
-                  frames: [32, 33],
-                  frameLengthMs: 200,
-                },
-              },
-            }),
-            new BoxCollider({
-              width: 3.8,
-              height: 3.8,
-            }),
-            new Enemy(),
-            new KinematicBody(),
-            new FallingRenderer(),
-          ],
-        });
-      } else if (type === 'pit') {
-        if (!objectInfo.name) {
-          console.log(objectInfo);
-          throw new Error('cannot create pit without name');
-        }
-
-        return new GameObject({
-          name: objectInfo.name,
-          tags: ['pit', 'trap'],
-          zIndex: ZIndex.GroundObject,
-          components: [
-            new BoxCollider({
-              width: objectInfo.width,
-              height: objectInfo.height,
-            }),
-            new PolygonRenderer({
-              fillStyle: 'black',
-            }),
-            new Pit(),
-          ],
-        });
-      } else if (type === 'arrowSpawner') {
-        if (!objectInfo.name) {
-          console.log(objectInfo);
-          throw new Error('cannot create arrowSpawner without name');
-        }
-
-        return new GameObject({
-          name: objectInfo.name,
-          tags: ['arrowSpawner', 'trap'],
-          components: [
-            new ArrowSpawner({
-              angle: objectInfo.properties.angle,
-            }),
-          ],
-        });
-      } else {
-        console.log(objectInfo);
-        throw new Error(`unrecognized object type ${type}`);
-      }
-    };
 
     this.pearl.entities.add(
       new GameObject({
@@ -204,7 +24,7 @@ export default class Game extends Component<null> {
             level,
             tileset,
             spriteSheet: sheet,
-            entityFactory: entityFactory,
+            entityFactories: tiledEntityFactories,
           }),
           new TileMapCollider(),
         ],

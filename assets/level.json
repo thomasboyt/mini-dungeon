@@ -38,7 +38,7 @@
                  "visible":true,
                  "width":4,
                  "x":8,
-                 "y":50
+                 "y":13
                 }, 
                 {
                  "gid":29,
@@ -71,7 +71,7 @@
                  "name":"",
                  "properties":
                     {
-                     "text":"Find the key to leave!"
+                     "text":"Good luck!!!"
                     },
                  "propertytypes":
                     {
@@ -169,6 +169,18 @@
                  "width":4,
                  "x":13,
                  "y":70
+                }, 
+                {
+                 "gid":33,
+                 "height":4,
+                 "id":27,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":4,
+                 "x":41,
+                 "y":48
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -176,7 +188,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":26,
+ "nextobjectid":28,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.5",

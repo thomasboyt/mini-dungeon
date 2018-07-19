@@ -6,6 +6,7 @@ import {
   Coordinates,
   SpriteRenderer,
   Physical,
+  PearlInstance,
 } from 'pearl';
 
 import memoize from 'micro-memoize';
@@ -24,8 +25,17 @@ interface Settings {
   level: TiledLevelJSON;
   tileset: TiledTilesetJSON;
   spriteSheet: SpriteSheet;
-  entityFactory: (type: string, objectInfo: ObjectInfo) => GameObject;
+  entityFactories: TiledEntityFactories;
 }
+
+export type TiledEntityFactory = (
+  objectInfo: ObjectInfo,
+  pearl: PearlInstance
+) => GameObject;
+
+export type TiledEntityFactories = {
+  [type: string]: TiledEntityFactory | undefined;
+};
 
 export default class TiledTileMap extends Component<Settings>
   implements ITileMap {
@@ -40,7 +50,7 @@ export default class TiledTileMap extends Component<Settings>
   tileLayers: TiledTileLayer[] = [];
 
   create(settings: Settings) {
-    const { level, tileset, spriteSheet, entityFactory } = settings;
+    const { level, tileset, spriteSheet, entityFactories } = settings;
     this.spriteSheet = spriteSheet;
 
     this.width = level.width;
@@ -70,7 +80,15 @@ export default class TiledTileMap extends Component<Settings>
             throw new Error(`can't parse object without a type: ${objectInfo}`);
           }
 
-          const entity = entityFactory(resolvedType, objectInfo);
+          const factory = entityFactories[resolvedType];
+
+          if (!factory) {
+            throw new Error(
+              `no entity factory for object type ${resolvedType}`
+            );
+          }
+
+          const entity = factory(objectInfo, this.pearl);
 
           if (objectInfo.objectType === 'tile') {
             entity.addComponent(

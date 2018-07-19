@@ -15,6 +15,7 @@ import Sign from './Sign';
 import SpriteAsset from '../SpriteAsset';
 import Sword from './Sword';
 import FallingRenderer from './FallingRenderer';
+import { swordFactory } from '../entityFactories';
 
 const lerp = (a: number, b: number, f: number) => a + (b - a) * f;
 
@@ -109,24 +110,7 @@ export default class Player extends Component<null> {
     }
 
     this.sword = this.pearl.entities.add(
-      new GameObject({
-        name: 'sword',
-        tags: ['sword'],
-        components: [
-          new Physical({
-            angle: (45 + 90) * (Math.PI / 180),
-          }),
-          new BoxCollider(),
-          new SpriteRenderer({
-            sprite: this.pearl.assets.get(SpriteAsset, 'sword'),
-            scaleX: 1 / 4,
-            scaleY: 1 / 4,
-          }),
-          new Sword({
-            direction: this.facing,
-          }),
-        ],
-      })
+      swordFactory(this.pearl, { direction: this.facing })
     );
 
     this.gameObject.appendChild(this.sword);

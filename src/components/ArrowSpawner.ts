@@ -8,6 +8,7 @@ import {
 } from 'pearl';
 import Arrow from './Arrow';
 import Trap from './Trap';
+import { arrowFactory } from '../entityFactories';
 
 interface ArrowSpawnerSettings {
   angle: number;
@@ -43,28 +44,7 @@ export default class ArrowSpawner extends Trap<ArrowSpawnerSettings> {
     const phys = this.getComponent(Physical);
     const angle = this.angle * (Math.PI / 180);
     const arrow = this.pearl.entities.add(
-      new GameObject({
-        name: 'arrow',
-        tags: ['arrow'],
-        components: [
-          new Physical({
-            center: {
-              x: phys.center.x,
-              y: phys.center.y,
-            },
-            angle,
-          }),
-          new BoxCollider({
-            width: 2,
-            height: 1,
-          }),
-          new PolygonRenderer({
-            fillStyle: 'red',
-          }),
-          new Arrow(),
-          new KinematicBody(),
-        ],
-      })
+      arrowFactory({ center: phys.center, angle })
     );
 
     arrow.getComponent(BoxCollider).isTrigger = true;

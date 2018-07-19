@@ -21,13 +21,6 @@ export default class Sword extends Component<Settings> {
     this.getComponent(Physical).localCenter = { x: 4, y: 0 };
     const { direction } = settings;
 
-    this.getComponent(BoxCollider)
-      .getCollisionShape()
-      .setBoxSize({
-        width: 4,
-        height: 1,
-      });
-
     this.getComponent(Physical).localCenter = {
       x: 4 * direction.x,
       y: 4 * direction.y,
