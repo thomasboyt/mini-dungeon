@@ -1,14 +1,16 @@
 import {
   Component,
-  ICollider,
-  PolygonCollider,
   CollisionResponse,
+  PolygonShape,
+  Collider,
+  CollisionShape,
+  Position,
 } from 'pearl';
-import * as SAT from 'sat';
 import TiledTileMap from './TiledTileMap';
 
 interface TileCollisionInformation {
-  polygon: SAT.Polygon;
+  polygon: PolygonShape;
+  position: Position;
   activeEdges: {
     top: boolean;
     bottom: boolean;
@@ -17,8 +19,7 @@ interface TileCollisionInformation {
   };
 }
 
-export default class TileMapCollider extends Component<void>
-  implements ICollider {
+export default class TileMapCollider extends Collider {
   isEnabled = true;
   isTrigger = false;
 
@@ -43,14 +44,19 @@ export default class TileMapCollider extends Component<void>
         const worldX = x * tileMap.tileWidth;
         const worldY = y * tileMap.tileHeight;
 
-        const polygon = new SAT.Box(
-          new SAT.Vector(worldX, worldY),
-          tileMap.tileWidth,
-          tileMap.tileHeight
-        ).toPolygon();
+        const polygon = PolygonShape.createBox({
+          width: tileMap.tileWidth,
+          height: tileMap.tileHeight,
+        });
 
         return {
           polygon,
+          position: {
+            center: {
+              x: worldX + tileMap.tileWidth / 2,
+              y: worldY + tileMap.tileHeight / 2,
+            },
+          },
           activeEdges: {
             top: !north,
             left: !west,
@@ -64,30 +70,9 @@ export default class TileMapCollider extends Component<void>
     });
   }
 
-  isColliding(other: ICollider): boolean {
-    return this.getCollision(other) !== null;
-  }
-
   // TODO: Allow non-rectangular tiles
   // TODO: Support colliders other than PolygonCollider
-  getCollision(collider: ICollider | SAT.Polygon): CollisionResponse | null {
-    if (!this.isEnabled) {
-      return null;
-    }
-
-    if (!(collider instanceof SAT.Polygon)) {
-      if (!(collider instanceof PolygonCollider)) {
-        throw new Error('non-PolygonColliders not supported yet');
-      } else {
-        if (!collider.isEnabled) {
-          return null;
-        }
-      }
-    }
-
-    const poly =
-      collider instanceof SAT.Polygon ? collider : collider.getSATPolygon();
-
+  testShape(shape: CollisionShape, otherPosition: Position) {
     const tileMap = this.getComponent(TiledTileMap);
 
     for (let idx = 0; idx < this.collisionMap.length; idx += 1) {
@@ -96,15 +81,19 @@ export default class TileMapCollider extends Component<void>
         continue;
       }
 
-      const tilePoly = collisionInfo.polygon;
+      const tilePolygonShape = collisionInfo.polygon;
 
-      const resp = new SAT.Response();
-      const collided = SAT.testPolygonPolygon(poly, tilePoly, resp);
+      // TODO: should this be inverted?
+      const resp = tilePolygonShape.testShape(
+        shape,
+        collisionInfo.position,
+        otherPosition
+      );
 
-      if (collided && resp.overlap > 0) {
+      if (resp && resp.overlap > 0) {
         const overlapVector: [number, number] = [
-          resp.overlapV.x,
-          resp.overlapV.y,
+          resp.overlapVector[0],
+          resp.overlapVector[1],
         ];
         const overlap = resp.overlap;
         const aInB = resp.aInB;
@@ -112,7 +101,5 @@ export default class TileMapCollider extends Component<void>
         return { overlapVector, overlap, aInB, bInA };
       }
     }
-
-    return null;
   }
 }

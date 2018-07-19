@@ -1,10 +1,10 @@
 import {
   Component,
   PolygonRenderer,
-  PolygonCollider,
   GameObject,
   Physical,
   KinematicBody,
+  PolygonCollider,
 } from 'pearl';
 import Arrow from './Arrow';
 

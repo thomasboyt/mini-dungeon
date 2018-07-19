@@ -2,11 +2,11 @@ import {
   Component,
   Coordinates,
   Physical,
-  PolygonCollider,
   PolygonRenderer,
   GameObject,
   SpriteRenderer,
   Sprite,
+  PolygonCollider,
 } from 'pearl';
 import SpriteAsset from '../SpriteAsset';
 import Pit from './Pit';

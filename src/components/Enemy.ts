@@ -3,9 +3,9 @@ import {
   Physical,
   Coordinates,
   AnimationManager,
-  PolygonCollider,
   CollisionInformation,
   KinematicBody,
+  PolygonShape,
 } from 'pearl';
 import * as SAT from 'sat';
 import FallingRenderer from './FallingRenderer';
@@ -51,15 +51,17 @@ export default class Enemy extends Component<void> {
       return;
     }
 
-    const ray = new SAT.Polygon(new SAT.Vector(phys.center.x, phys.center.y), [
-      new SAT.Vector(0, 0),
-      new SAT.Vector(xDiff, yDiff),
-    ]);
+    const ray = new PolygonShape({
+      points: [[0, 0], [xDiff, yDiff]],
+    });
 
     const tileMapCollider = this.gameObject.parent!.getComponent(
       TileMapCollider
     );
-    const canSeePlayer = !tileMapCollider.getCollision(ray);
+    const canSeePlayer = !tileMapCollider.testShape(
+      ray,
+      this.getComponent(Physical)
+    );
 
     let xVec = 0;
     let yVec = 0;

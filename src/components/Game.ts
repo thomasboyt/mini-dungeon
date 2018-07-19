@@ -4,9 +4,9 @@ import {
   Sprite,
   GameObject,
   AnimationManager,
-  PolygonCollider,
   PolygonRenderer,
   KinematicBody,
+  PolygonCollider,
 } from 'pearl';
 import SpriteSheetAsset from '../SpriteSheetAsset';
 

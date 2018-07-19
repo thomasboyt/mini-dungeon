@@ -3,13 +3,13 @@ import {
   Keys,
   Physical,
   AnimationManager,
-  PolygonCollider,
   Coordinates,
   GameObject,
   SpriteRenderer,
   CollisionInformation,
   MouseButton,
   KinematicBody,
+  PolygonCollider,
 } from 'pearl';
 import Sign from './Sign';
 import SpriteAsset from '../SpriteAsset';
