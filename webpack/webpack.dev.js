@@ -7,6 +7,6 @@ module.exports = merge(common, {
   serve: {
     host: '0.0.0.0',
     content: './static',
-    hot: false,
+    hotClient: false,
   },
 });
