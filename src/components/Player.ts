@@ -36,6 +36,26 @@ export default class Player extends Component<null> {
       return;
     }
 
+    const movementVec = this.getMovementVector();
+
+    if (V.length(movementVec) !== 0) {
+      this.facing = movementVec;
+
+      this.getComponent(KinematicBody).moveAndSlide(
+        V.multiply(movementVec, dt * this.playerSpeed)
+      );
+    }
+
+    this.moveCamera(dt);
+
+    this.setAnimation(movementVec);
+
+    if (this.pearl.inputter.isKeyPressed(Keys.space)) {
+      this.stab();
+    }
+  }
+
+  private getMovementVector(): Vector2 {
     let uVelocity = { x: 0, y: 0 };
 
     if (this.pearl.inputter.isKeyDown(Keys.rightArrow)) {
@@ -61,21 +81,7 @@ export default class Player extends Component<null> {
       uVelocity = this.getPointerMovement([...touchPositions.values()][0]);
     }
 
-    if (uVelocity.x || uVelocity.y) {
-      this.facing = { x: uVelocity.x, y: uVelocity.y };
-      this.getComponent(KinematicBody).moveAndSlide({
-        x: uVelocity.x * dt * this.playerSpeed,
-        y: uVelocity.y * dt * this.playerSpeed,
-      });
-    }
-
-    this.moveCamera(dt);
-
-    this.setAnimation(uVelocity.x, uVelocity.y);
-
-    if (this.pearl.inputter.isKeyPressed(Keys.space)) {
-      this.stab();
-    }
+    return uVelocity;
   }
 
   private getPointerMovement(viewPos: Vector2): Vector2 {
@@ -88,27 +94,16 @@ export default class Player extends Component<null> {
     const viewCenter = this.pearl.renderer.getViewCenter();
     const viewSize = this.pearl.renderer.getViewSize();
 
-    const worldPos = {
-      x: viewCenter.x + (scaledViewPos.x - viewSize.x / 2),
-      y: viewCenter.y + (scaledViewPos.y - viewSize.y / 2),
-    };
-
-    const worldPos2 = V.add(
+    const worldPos = V.add(
       viewCenter,
       V.subtract(scaledViewPos, V.divide(viewSize, 2))
     );
 
     // get vector relative to player
     const phys = this.getComponent(Physical);
-    const vector = {
-      x: worldPos.x - phys.center.x,
-      y: worldPos.y - phys.center.y,
-    };
+    const vector = V.subtract(worldPos, phys.center);
 
-    // vec -> unit vec
-    const magnitude = Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2));
-
-    return { x: vector.x / magnitude, y: vector.y / magnitude };
+    return V.unit(vector);
   }
 
   private stab() {
@@ -129,16 +124,16 @@ export default class Player extends Component<null> {
     });
   }
 
-  private setAnimation(xVec: number, yVec: number) {
+  private setAnimation(movementVec: Vector2) {
     const anim = this.getComponent(AnimationManager);
     const spriteRenderer = this.getComponent(SpriteRenderer);
 
-    if (xVec !== 0 || yVec !== 0) {
+    if (movementVec.x !== 0 || movementVec.y !== 0) {
       anim.set('walking');
 
-      if (xVec < 0) {
+      if (movementVec.x < 0) {
         spriteRenderer.scaleX = -1;
-      } else if (xVec > 0) {
+      } else if (movementVec.y > 0) {
         spriteRenderer.scaleX = 1;
       }
     } else {
