@@ -15,8 +15,10 @@ interface ArrowSpawnerSettings {
 }
 
 export default class ArrowSpawner extends Trap<ArrowSpawnerSettings> {
+  fireDelayMs = 1000;
   private spawnCoroutine?: IterableIterator<undefined>;
   private angle!: number;
+  private lastFireTime: number = 0;
 
   create(settings: ArrowSpawnerSettings) {
     this.angle = settings.angle;
@@ -29,6 +31,14 @@ export default class ArrowSpawner extends Trap<ArrowSpawnerSettings> {
 
     this.spawnCoroutine = this.runCoroutine(function*(this: ArrowSpawner) {
       while (true) {
+        // Prevent firing more than fireDelayMs by walking off and stepping on
+        // the switch over and over again
+        if (Date.now() - this.lastFireTime < this.fireDelayMs) {
+          yield this.pearl.async.waitMs(
+            this.fireDelayMs - (Date.now() - this.lastFireTime)
+          );
+        }
+
         this.createArrow();
         yield this.pearl.async.waitMs(1000);
       }
