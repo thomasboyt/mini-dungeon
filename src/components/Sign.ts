@@ -51,10 +51,10 @@ export default class Sign extends Component<Settings> {
       }
       ctx.rotate(degrees * (Math.PI / 180));
 
-      ctx.font = 'bold 2px monospace';
+      ctx.font = 'bold 4px monospace';
       ctx.fillStyle = 'white';
       ctx.strokeStyle = 'black';
-      ctx.lineWidth = 0.125;
+      ctx.lineWidth = 0.25;
       ctx.textAlign = 'center';
       ctx.fillText(this.text, 0, 0);
       ctx.strokeText(this.text, 0, 0);
