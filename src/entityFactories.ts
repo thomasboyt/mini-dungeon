@@ -5,7 +5,7 @@ import {
   AnimationManager,
   PolygonRenderer,
   Physical,
-  Coordinates,
+  Vector2,
   PearlInstance,
   SpriteRenderer,
 } from 'pearl';
@@ -209,7 +209,7 @@ export const tiledEntityFactories: TiledEntityFactories = {
 };
 
 interface ArrowSettings {
-  center: Coordinates;
+  center: Vector2;
   angle: number;
 }
 
@@ -238,7 +238,7 @@ export const arrowFactory = (settings: ArrowSettings): GameObject => {
 };
 
 interface SwordSettings {
-  direction: Coordinates;
+  direction: Vector2;
 }
 
 export const swordFactory = (

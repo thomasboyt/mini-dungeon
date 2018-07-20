@@ -1,6 +1,5 @@
 import {
   Component,
-  Coordinates,
   Physical,
   PolygonRenderer,
   GameObject,

@@ -1,13 +1,13 @@
 import {
   Component,
-  Coordinates,
+  Vector2,
   Physical,
   SpriteRenderer,
   BoxCollider,
 } from 'pearl';
 
 interface Settings {
-  direction: Coordinates;
+  direction: Vector2;
 }
 
 const lerp = (a: number, b: number, f: number) => a + (b - a) * f;

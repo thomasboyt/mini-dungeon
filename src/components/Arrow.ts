@@ -3,19 +3,15 @@ import {
   CollisionInformation,
   KinematicBody,
   Physical,
-  Coordinates,
+  VectorMaths as V,
 } from 'pearl';
 
-function getVectorComponents(magnitude: number, rad: number): Coordinates {
-  const x = magnitude * Math.cos(rad);
-  const y = magnitude * Math.sin(rad);
-  return { x, y };
-}
-
 export default class Arrow extends Component<void> {
+  arrowSpeed = 0.02;
+
   update(dt: number) {
     const angle = this.getComponent(Physical).angle;
-    const vel = getVectorComponents(0.01 * dt, angle);
+    const vel = V.multiply(V.fromAngle(angle), this.arrowSpeed * dt);
     this.getComponent(KinematicBody).moveAndCollide(vel);
   }
 

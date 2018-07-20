@@ -1,28 +1,16 @@
 import {
   Component,
   Physical,
-  Coordinates,
   AnimationManager,
   CollisionInformation,
   KinematicBody,
   PolygonShape,
+  VectorMaths as V,
 } from 'pearl';
 import FallingRenderer from './FallingRenderer';
 import TiledTileMap from './TiledTileMap';
 import Player from './Player';
 import TileMapCollider from './TileMapCollider';
-
-// hm https://docs.unity3d.com/ScriptReference/Vector3.MoveTowards.html
-const moveTowards = (
-  current: Coordinates,
-  target: Coordinates,
-  step: number
-): Coordinates => {
-  const rad = Math.atan2(target.y - current.y, target.x - current.x);
-  const x = step * Math.cos(rad);
-  const y = step * Math.sin(rad);
-  return { x: current.x + x, y: current.y + y };
-};
 
 export default class Enemy extends Component<void> {
   dead = false;
@@ -62,8 +50,7 @@ export default class Enemy extends Component<void> {
       this.getComponent(Physical)
     );
 
-    let xVec = 0;
-    let yVec = 0;
+    let vel = { x: 0, y: 0 };
     if (canSeePlayer) {
       this.getComponent(AnimationManager).set('walking');
 
@@ -74,17 +61,12 @@ export default class Enemy extends Component<void> {
       const target = playerCenter;
       const current = phys.center;
       const step = this.moveSpeed * dt;
-      const rad = Math.atan2(target.y - current.y, target.x - current.x);
-      xVec = step * Math.cos(rad);
-      yVec = step * Math.sin(rad);
+      vel = V.multiply(V.unit(V.subtract(target, current)), step);
     } else {
       this.getComponent(AnimationManager).set('idle');
     }
 
-    const collisions = this.getComponent(KinematicBody).moveAndSlide({
-      x: xVec,
-      y: yVec,
-    });
+    const collisions = this.getComponent(KinematicBody).moveAndSlide(vel);
   }
 
   onCollision(collision: CollisionInformation) {

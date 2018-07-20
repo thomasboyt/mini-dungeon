@@ -3,7 +3,7 @@ import {
   Component,
   Sprite,
   GameObject,
-  Coordinates,
+  Vector2,
   SpriteRenderer,
   Physical,
   PearlInstance,
@@ -139,13 +139,13 @@ export default class TiledTileMap extends Component<Settings>
     this.getComponent(TileMapCollider).initializeCollisions(this, collisionMap);
   }
 
-  idxToTileCoordinates(idx: number): Coordinates {
+  idxToTileCoordinates(idx: number): Vector2 {
     const tx = idx % this.width;
     const ty = Math.floor(idx / this.width);
     return { x: tx, y: ty };
   }
 
-  tileCoordinatesToIdx(tilePos: Coordinates): number {
+  tileCoordinatesToIdx(tilePos: Vector2): number {
     return tilePos.y * this.width + tilePos.x;
   }
 

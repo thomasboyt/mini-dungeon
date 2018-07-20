@@ -5,7 +5,7 @@ import {
   Collider,
   CollisionShape,
   Position,
-  Coordinates,
+  Vector2,
   Physical,
 } from 'pearl';
 
@@ -21,8 +21,8 @@ interface TileCollisionInformation {
 }
 
 export interface ITileMap {
-  idxToTileCoordinates(idx: number): Coordinates;
-  tileCoordinatesToIdx(tilePos: Coordinates): number;
+  idxToTileCoordinates(idx: number): Vector2;
+  tileCoordinatesToIdx(tilePos: Vector2): number;
   tileWidth: number;
   tileHeight: number;
 }

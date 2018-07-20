@@ -3,13 +3,14 @@ import {
   Keys,
   Physical,
   AnimationManager,
-  Coordinates,
   GameObject,
   SpriteRenderer,
   CollisionInformation,
   MouseButton,
   KinematicBody,
   BoxCollider,
+  Vector2,
+  VectorMaths as V,
 } from 'pearl';
 import Sign from './Sign';
 import SpriteAsset from '../SpriteAsset';
@@ -23,7 +24,7 @@ export default class Player extends Component<null> {
   playerSpeed = 0.01;
   hasKey: boolean = false;
   sword?: GameObject;
-  facing: Coordinates = { x: 1, y: 0 };
+  facing: Vector2 = { x: 1, y: 0 };
   dead = false;
 
   init() {
@@ -77,19 +78,25 @@ export default class Player extends Component<null> {
     }
   }
 
-  private getPointerMovement(viewPos: Coordinates): Coordinates {
-    const scaledViewPos = {
-      x: viewPos.x / this.pearl.renderer.logicalScaleFactor,
-      y: viewPos.y / this.pearl.renderer.logicalScaleFactor,
-    };
+  private getPointerMovement(viewPos: Vector2): Vector2 {
+    const scaledViewPos = V.divide(
+      viewPos,
+      this.pearl.renderer.logicalScaleFactor
+    );
 
     // translate mouse position relative to view center
     const viewCenter = this.pearl.renderer.getViewCenter();
     const viewSize = this.pearl.renderer.getViewSize();
+
     const worldPos = {
       x: viewCenter.x + (scaledViewPos.x - viewSize.x / 2),
       y: viewCenter.y + (scaledViewPos.y - viewSize.y / 2),
     };
+
+    const worldPos2 = V.add(
+      viewCenter,
+      V.subtract(scaledViewPos, V.divide(viewSize, 2))
+    );
 
     // get vector relative to player
     const phys = this.getComponent(Physical);
