@@ -18,6 +18,7 @@ export default class TrapSwitch extends Component<Settings> {
   pressed = false;
   trapName!: string;
   trap!: GameObject;
+  player!: GameObject;
 
   pressedSprite!: Sprite;
   unpressedSprite!: Sprite;
@@ -27,12 +28,15 @@ export default class TrapSwitch extends Component<Settings> {
     this.trapName = settings.trapName;
     this.pressedSprite = this.pearl.assets.get(SpriteAsset, 'pressedSwitch');
     this.unpressedSprite = this.getComponent(SpriteRenderer).sprite!;
+
+    const player = this.pearl.entities.all('player')[0]!;
+    this.player = player;
   }
 
   // XXX: This sucks!! Basically we can't look up the pit until after
   // initialization since this and pit are initialized on the same frame. This
   // really indicates that Pearl's lifecycle might need a further rethink. Maybe
-  // all() should be able to return entities components? Or at least entities
+  // all() should be able to return uninitialized entities? Or at least entities
   // that are going to be initialized on this frame?
   setTrap() {
     const trap = this.pearl.entities
@@ -53,13 +57,11 @@ export default class TrapSwitch extends Component<Settings> {
       this.setTrap();
     }
 
-    const player = this.pearl.entities.all('player')[0]!;
+    const playerColliding = this.player
+      .getComponent(BoxCollider)
+      .isColliding(this.getComponent(BoxCollider));
 
-    if (
-      player
-        .getComponent(BoxCollider)
-        .isColliding(this.getComponent(BoxCollider))
-    ) {
+    if (playerColliding) {
       this.press();
     } else if (this.pressed) {
       this.unpress();
