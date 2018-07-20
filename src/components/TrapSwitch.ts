@@ -70,22 +70,24 @@ export default class TrapSwitch extends Component<Settings> {
 
   press() {
     this.pressed = true;
-    this.getComponent(SpriteRenderer).sprite = this.pressedSprite;
-
     this.trap.getComponent(Trap).activate();
-
-    if (this.deactivateCoroutine) {
-      this.cancelCoroutine(this.deactivateCoroutine);
-    }
+    this.getComponent(SpriteRenderer).sprite = this.pressedSprite;
   }
 
   unpress() {
     this.pressed = false;
 
+    if (this.deactivateCoroutine) {
+      this.cancelCoroutine(this.deactivateCoroutine);
+    }
+
     this.deactivateCoroutine = this.runCoroutine(function*(this: TrapSwitch) {
       this.trap!.getComponent(Trap).deactivate();
       yield this.pearl.async.waitMs(1000);
-      this.getComponent(SpriteRenderer).sprite = this.unpressedSprite;
+      delete this.deactivateCoroutine;
+      if (!this.pressed) {
+        this.getComponent(SpriteRenderer).sprite = this.unpressedSprite;
+      }
     });
   }
 }
