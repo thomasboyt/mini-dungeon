@@ -6,6 +6,8 @@ import {
   KinematicBody,
   PolygonShape,
   VectorMaths as V,
+  Vector2,
+  GameObject,
 } from 'pearl';
 import FallingRenderer from './FallingRenderer';
 import TiledTileMap from './TiledTileMap';
@@ -15,27 +17,47 @@ import TileMapCollider from './TileMapCollider';
 export default class Enemy extends Component<void> {
   dead = false;
   moveSpeed = 0.01;
+  startingPosition!: Vector2;
+  player!: GameObject;
+
+  init() {
+    this.startingPosition = this.getComponent(Physical).center;
+    this.player = this.pearl.entities.all('player')[0]!;
+  }
 
   update(dt: number) {
     if (this.dead) {
       return;
     }
 
-    const player = this.pearl.entities.all('player')[0]!;
+    const canSeePlayer = this.canSeePlayer();
 
-    if (player.getComponent(Player).dead) {
-      return;
+    if (canSeePlayer) {
+      this.moveTowards(dt, this.player.getComponent(Physical).center);
+    } else {
+      // revert to  starting position
+      const atStart = V.equals(
+        this.getComponent(Physical).center,
+        this.startingPosition
+      );
+      if (atStart) {
+        this.getComponent(AnimationManager).set('idle');
+      } else {
+        this.moveTowards(dt, this.startingPosition);
+      }
     }
+  }
 
+  private canSeePlayer(): boolean {
     const phys = this.getComponent(Physical);
-    const playerCenter = player.getComponent(Physical).center;
+    const playerCenter = this.player.getComponent(Physical).center;
 
     // if the player is > a screen away, don't chase
     const xDiff = playerCenter.x - phys.center.x;
     const yDiff = playerCenter.y - phys.center.y;
     const viewSize = this.pearl.renderer.getViewSize();
     if (Math.abs(xDiff) > viewSize.x / 2 || Math.abs(yDiff) > viewSize.y / 2) {
-      return;
+      return false;
     }
 
     const ray = new PolygonShape({
@@ -45,28 +67,29 @@ export default class Enemy extends Component<void> {
     const tileMapCollider = this.gameObject.parent!.getComponent(
       TileMapCollider
     );
-    const canSeePlayer = !tileMapCollider.testShape(
-      ray,
-      this.getComponent(Physical)
-    );
 
-    let vel = { x: 0, y: 0 };
-    if (canSeePlayer) {
-      this.getComponent(AnimationManager).set('walking');
+    return !tileMapCollider.testShape(ray, this.getComponent(Physical));
+  }
 
-      // TODO: Instead of simply following the sightline ray, which could catch
-      // on corners, use pathfinding.js with "allow diagonal" and "don't cross
-      // corners" set
-      // - see: https://i.imgur.com/A1Yxy1V.png
-      const target = playerCenter;
-      const current = phys.center;
-      const step = this.moveSpeed * dt;
-      vel = V.multiply(V.unit(V.subtract(target, current)), step);
-    } else {
-      this.getComponent(AnimationManager).set('idle');
+  // TODO: Instead of simply following the sightline ray, which could catch
+  // on corners, use pathfinding.js with "allow diagonal" and "don't cross
+  // corners" set
+  // - see: https://i.imgur.com/A1Yxy1V.png
+  private moveTowards(dt: number, target: Vector2) {
+    this.getComponent(AnimationManager).set('walking');
+    const current = this.getComponent(Physical).center;
+    const step = this.moveSpeed * dt;
+
+    // If the distance to be moved to is greater than the distance between the
+    // target and the current position, cap movement distance so it go exactly
+    // to the point
+    const between = V.subtract(target, current);
+    let vel = V.multiply(V.unit(between), step);
+    if (V.length(vel) > V.length(between)) {
+      vel = between;
     }
 
-    const collisions = this.getComponent(KinematicBody).moveAndSlide(vel);
+    this.getComponent(KinematicBody).moveAndSlide(vel);
   }
 
   onCollision(collision: CollisionInformation) {
