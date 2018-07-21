@@ -6,8 +6,9 @@ import {
   SpriteRenderer,
   Sprite,
   BoxCollider,
+  SpriteAsset,
 } from 'pearl';
-import SpriteAsset from '../SpriteAsset';
+
 import Trap from './Trap';
 
 interface Settings {

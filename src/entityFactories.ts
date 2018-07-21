@@ -8,10 +8,11 @@ import {
   Vector2,
   PearlInstance,
   SpriteRenderer,
+  SpriteAsset,
+  SpriteSheetAsset,
 } from 'pearl';
 
 import { ZIndex } from './types';
-import SpriteSheetAsset from './SpriteSheetAsset';
 
 import {
   TiledEntityFactory,
@@ -26,7 +27,6 @@ import Sign from './components/Sign';
 import TrapSwitch from './components/TrapSwitch';
 import Enemy from './components/Enemy';
 import Arrow from './components/Arrow';
-import SpriteAsset from './SpriteAsset';
 import Sword from './components/Sword';
 
 const player: TiledEntityFactory = (objectInfo, pearl) => {

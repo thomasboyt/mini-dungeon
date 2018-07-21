@@ -11,9 +11,9 @@ import {
   BoxCollider,
   Vector2,
   VectorMaths as V,
+  SpriteAsset,
 } from 'pearl';
 import Sign from './Sign';
-import SpriteAsset from '../SpriteAsset';
 import Sword from './Sword';
 import FallingRenderer from './FallingRenderer';
 import { swordFactory } from '../entityFactories';

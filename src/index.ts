@@ -1,7 +1,5 @@
-import { createPearl } from 'pearl';
+import { createPearl, SpriteAsset, SpriteSheetAsset } from 'pearl';
 import Game from './components/Game';
-import SpriteSheetAsset from './SpriteSheetAsset';
-import SpriteAsset from './SpriteAsset';
 
 async function main() {
   const pearl = await createPearl({

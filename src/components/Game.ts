@@ -1,8 +1,7 @@
-import { Component, createPearl, GameObject } from 'pearl';
+import { Component, createPearl, GameObject, SpriteSheetAsset } from 'pearl';
 
 import { tiledEntityFactories } from '../entityFactories';
 import { TiledLevelJSON, TiledTilesetJSON } from '../tiled';
-import SpriteSheetAsset from '../SpriteSheetAsset';
 import { ZIndex } from '../types';
 
 import TiledTileMap from './TiledTileMap';
