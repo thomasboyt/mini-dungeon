@@ -133,7 +133,7 @@ export default class Player extends Component<null> {
 
       if (movementVec.x < 0) {
         spriteRenderer.scaleX = -1;
-      } else if (movementVec.y > 0) {
+      } else if (movementVec.x > 0) {
         spriteRenderer.scaleX = 1;
       }
     } else {
